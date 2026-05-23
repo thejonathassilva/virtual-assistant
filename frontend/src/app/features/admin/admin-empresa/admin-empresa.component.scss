@@ -4,6 +4,37 @@
   margin-bottom: 0.5rem;
 }
 
+.logo-preview {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: var(--surface, #352920);
+  border: 1px solid var(--border, rgba(245, 235, 224, 0.12));
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+.logo-img {
+  max-width: 120px;
+  max-height: 80px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.logo-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  opacity: 0.5;
+
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+  }
+}
+
 .ok {
   margin-left: 1rem;
   color: #4caf50;

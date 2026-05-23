@@ -5,48 +5,24 @@
   text-align: center;
 }
 
-.mesa-brand {
-  margin-bottom: 1.5rem;
-
-  .brand-icon {
-    font-size: 48px;
-    width: 48px;
-    height: 48px;
-    color: #e94560;
-  }
-
-  h1 {
-    margin: 0.5rem 0 0;
-    font-size: 1.65rem;
-    line-height: 1.25;
-  }
-
-  .mesa-badge {
-    display: inline-block;
-    margin-top: 0.5rem;
-    padding: 0.35rem 1rem;
-    background: #533483;
-    border-radius: 999px;
-    font-weight: 600;
-  }
-}
-
 .aviso-card {
   display: flex;
   gap: 1rem;
   align-items: flex-start;
   text-align: left;
-  margin-bottom: 1.5rem;
+  margin: 1.5rem 0;
   padding: 1rem !important;
+  border: 1px solid var(--border);
 
   mat-icon {
-    color: #e94560;
+    color: var(--accent);
     flex-shrink: 0;
   }
 
   p {
     margin: 0;
     line-height: 1.5;
+    color: var(--text-muted);
   }
 }
 
@@ -82,7 +58,7 @@
   }
 
   &.accent {
-    border-color: #e94560;
+    border-color: var(--accent);
   }
 }
 
@@ -90,4 +66,9 @@
   display: flex;
   justify-content: center;
   padding: 3rem;
+}
+
+.error-msg {
+  text-align: center;
+  color: var(--accent-hover);
 }

@@ -2,6 +2,23 @@
 <h2>Dados da empresa</h2>
 
 <form [formGroup]="form" (ngSubmit)="salvar()">
+  <div class="logo-preview">
+    @if (form.controls.logo_url.value?.trim(); as url) {
+      <img [src]="url" alt="Preview do logo" class="logo-img" />
+    } @else {
+      <div class="logo-placeholder">
+        <mat-icon>restaurant</mat-icon>
+        <span>Sem logo</span>
+      </div>
+    }
+  </div>
+
+  <mat-form-field appearance="outline" class="full">
+    <mat-label>URL do logo</mat-label>
+    <input matInput formControlName="logo_url" placeholder="https://..." />
+    <mat-hint>Exibido no cardápio, chat e tela inicial do cliente</mat-hint>
+  </mat-form-field>
+
   <mat-form-field appearance="outline" class="full">
     <mat-label>Nome</mat-label>
     <input matInput formControlName="nome" />

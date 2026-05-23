@@ -3,12 +3,13 @@ import { RouterLink } from '@angular/router';
 import { MesasService } from '../../core/services/mesas.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Mesa } from '../../core/models';
+import { RestaurantBrandComponent } from '../../shared/restaurant-brand/restaurant-brand.component';
 import { MATERIAL_IMPORTS } from '../../shared/material';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, ...MATERIAL_IMPORTS],
+  imports: [RouterLink, RestaurantBrandComponent, ...MATERIAL_IMPORTS],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })

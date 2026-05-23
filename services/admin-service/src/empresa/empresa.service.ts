@@ -36,7 +36,9 @@ export class EmpresaService implements OnModuleInit {
   async onModuleInit(): Promise<void> {
     const count = await this.empresaRepo.count();
     if (count === 0) {
-      await this.empresaRepo.save(this.empresaRepo.create(DEFAULT_EMPRESA));
+      if (process.env.NODE_ENV !== 'production') {
+        await this.empresaRepo.save(this.empresaRepo.create(DEFAULT_EMPRESA));
+      }
       return;
     }
     await this.migrateLegacyBrandName();

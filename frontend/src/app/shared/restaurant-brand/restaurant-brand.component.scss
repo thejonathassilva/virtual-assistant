@@ -1,0 +1,70 @@
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  &.centered {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  &.size-sm {
+    .logo,
+    .icon {
+      width: 36px;
+      height: 36px;
+      font-size: 36px;
+    }
+    h1 {
+      font-size: 1.1rem;
+    }
+  }
+
+  &.size-md {
+    .logo,
+    .icon {
+      width: 48px;
+      height: 48px;
+      font-size: 48px;
+    }
+    h1 {
+      font-size: 1.65rem;
+    }
+  }
+
+  &.size-lg {
+    .logo,
+    .icon {
+      width: 64px;
+      height: 64px;
+      font-size: 64px;
+    }
+    h1 {
+      font-size: 2rem;
+    }
+  }
+}
+
+.logo {
+  object-fit: contain;
+  border-radius: 12px;
+  background: var(--surface-elevated);
+}
+
+.icon {
+  color: var(--accent);
+}
+
+.text {
+  h1 {
+    margin: 0;
+    line-height: 1.2;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    opacity: 0.8;
+    font-size: 0.9rem;
+  }
+}

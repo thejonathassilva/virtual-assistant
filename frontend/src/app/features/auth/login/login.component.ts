@@ -2,12 +2,13 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { RestaurantBrandComponent } from '../../../shared/restaurant-brand/restaurant-brand.component';
 import { MATERIAL_IMPORTS } from '../../../shared/material';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, ...MATERIAL_IMPORTS],
+  imports: [ReactiveFormsModule, RouterLink, RestaurantBrandComponent, ...MATERIAL_IMPORTS],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })

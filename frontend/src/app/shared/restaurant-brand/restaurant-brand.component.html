@@ -1,0 +1,13 @@
+<div class="brand" [class.centered]="centered" [class]="'size-' + size">
+  @if (brand.logoUrl(); as logo) {
+    <img [src]="logo" [alt]="brand.nome()" class="logo" />
+  } @else {
+    <mat-icon class="icon">restaurant</mat-icon>
+  }
+  <div class="text">
+    <h1>{{ brand.nome() }}</h1>
+    @if (subtitle) {
+      <p>{{ subtitle }}</p>
+    }
+  </div>
+</div>

@@ -14,6 +14,7 @@ export class UsersService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
+    if (process.env.NODE_ENV === 'production') return;
     const count = await this.repo.count();
     if (count === 0) {
       await this.seedDevUsers();

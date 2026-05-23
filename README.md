@@ -98,6 +98,9 @@ docker compose down -v
 ```powershell
 # Teste rápido da API
 .\scripts\smoke-test.ps1
+
+# Testes unitários (Jest)
+.\scripts\run-tests.ps1
 ```
 
 ---

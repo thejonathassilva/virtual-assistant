@@ -1,4 +1,12 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+  AfterViewChecked,
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../../core/services/chat.service';
@@ -8,6 +16,7 @@ import { Pedido } from '../../../core/models';
 import { MATERIAL_IMPORTS } from '../../../shared/material';
 import { CurrencyPipe } from '@angular/common';
 import { produtoFotoUrl } from '../../../shared/produto-image.util';
+import { RestaurantBrandComponent } from '../../../shared/restaurant-brand/restaurant-brand.component';
 
 interface UiMsg {
   role: 'user' | 'assistant';
@@ -17,21 +26,24 @@ interface UiMsg {
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [RouterLink, FormsModule, CurrencyPipe, ...MATERIAL_IMPORTS],
+  imports: [RouterLink, FormsModule, CurrencyPipe, RestaurantBrandComponent, ...MATERIAL_IMPORTS],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss',
 })
-export class ChatComponent implements OnInit {
+export class ChatComponent implements OnInit, AfterViewChecked {
   private readonly route = inject(ActivatedRoute);
   private readonly chat = inject(ChatService);
   private readonly pedidos = inject(PedidosService);
   private readonly catalogo = inject(ProdutoCatalogoStore);
+
+  @ViewChild('messagesEl') messagesEl?: ElementRef<HTMLElement>;
 
   mesaId = signal('');
   mensagens = signal<UiMsg[]>([]);
   input = signal('');
   digitando = signal(false);
   pedido = signal<Pedido | null>(null);
+  private shouldScroll = false;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('mesaId')!;
@@ -43,10 +55,20 @@ export class ChatComponent implements OnInit {
           role: (m.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
           content: m.content,
         }));
-        if (msgs.length) this.mensagens.set(msgs);
+        if (msgs.length) {
+          this.mensagens.set(msgs);
+          this.shouldScroll = true;
+        }
       },
     });
     this.atualizarPedido();
+  }
+
+  ngAfterViewChecked(): void {
+    if (this.shouldScroll) {
+      this.scrollToBottom();
+      this.shouldScroll = false;
+    }
   }
 
   nomeProduto(produtoId: string): string {
@@ -60,10 +82,11 @@ export class ChatComponent implements OnInit {
 
   enviar(): void {
     const texto = this.input().trim();
-    if (!texto) return;
+    if (!texto || this.digitando()) return;
     this.mensagens.update((m) => [...m, { role: 'user', content: texto }]);
     this.input.set('');
     this.digitando.set(true);
+    this.shouldScroll = true;
 
     const assistantIndex = this.mensagens().length;
     this.mensagens.update((m) => [...m, { role: 'assistant', content: '' }]);
@@ -78,9 +101,11 @@ export class ChatComponent implements OnInit {
           }
           return copy;
         });
+        this.shouldScroll = true;
       })
       .then(() => {
         this.digitando.set(false);
+        this.shouldScroll = true;
         this.atualizarPedido();
       })
       .catch(() => {
@@ -95,14 +120,22 @@ export class ChatComponent implements OnInit {
           return copy;
         });
         this.digitando.set(false);
+        this.shouldScroll = true;
       });
   }
 
   chamarGarcom(): void {
     this.chat.enviar(this.mesaId(), 'Preciso chamar o garçom').subscribe({
-      next: (res) =>
-        this.mensagens.update((m) => [...m, { role: 'assistant', content: res.resposta }]),
+      next: (res) => {
+        this.mensagens.update((m) => [...m, { role: 'assistant', content: res.resposta }]);
+        this.shouldScroll = true;
+      },
     });
+  }
+
+  private scrollToBottom(): void {
+    const el = this.messagesEl?.nativeElement;
+    if (el) el.scrollTop = el.scrollHeight;
   }
 
   private atualizarPedido(): void {

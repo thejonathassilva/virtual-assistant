@@ -25,10 +25,27 @@ export class ProductsService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
+    await this.cleanupLegacyPhotoUrls();
+    if (process.env.NODE_ENV === 'production') return;
     const count = await this.repo.count();
     if (count === 0) {
       await this.seedProdutos();
     }
+  }
+
+  private async cleanupLegacyPhotoUrls() {
+    const legacy = await this.repo
+      .createQueryBuilder('p')
+      .where(
+        "p.foto_url ILIKE '%unsplash%' OR p.foto_url ILIKE '%placeholder%'",
+      )
+      .getMany();
+    if (legacy.length === 0) return;
+    for (const product of legacy) {
+      product.foto_url = undefined;
+      await this.repo.save(product);
+    }
+    await this.invalidateCardapioCache();
   }
 
   private async seedProdutos() {

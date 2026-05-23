@@ -2,12 +2,13 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MesasService } from '../../../core/services/mesas.service';
 import { Mesa } from '../../../core/models';
+import { RestaurantBrandComponent } from '../../../shared/restaurant-brand/restaurant-brand.component';
 import { MATERIAL_IMPORTS } from '../../../shared/material';
 
 @Component({
   selector: 'app-mesa-home',
   standalone: true,
-  imports: [RouterLink, ...MATERIAL_IMPORTS],
+  imports: [RouterLink, RestaurantBrandComponent, ...MATERIAL_IMPORTS],
   templateUrl: './mesa-home.component.html',
   styleUrl: './mesa-home.component.scss',
 })

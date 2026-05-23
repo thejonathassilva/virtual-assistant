@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AdminService } from '../../../core/services/admin.service';
+import { EmpresaBrandStore } from '../../../core/services/empresa-brand.store';
 import { MATERIAL_IMPORTS } from '../../../shared/material';
 
 @Component({
@@ -13,6 +14,7 @@ import { MATERIAL_IMPORTS } from '../../../shared/material';
 })
 export class AdminEmpresaComponent implements OnInit {
   private readonly admin = inject(AdminService);
+  private readonly brand = inject(EmpresaBrandStore);
   private readonly fb = inject(FormBuilder);
   saved = signal(false);
 
@@ -21,13 +23,30 @@ export class AdminEmpresaComponent implements OnInit {
     missao: [''],
     endereco: [''],
     telefone: [''],
+    logo_url: [''],
   });
 
   ngOnInit(): void {
-    this.admin.getEmpresa().subscribe((e) => this.form.patchValue(e));
+    this.admin.getEmpresa().subscribe((e) =>
+      this.form.patchValue({
+        nome: e.nome ?? '',
+        missao: e.missao ?? '',
+        endereco: e.endereco ?? '',
+        telefone: e.telefone ?? '',
+        logo_url: e.logo_url ?? '',
+      }),
+    );
   }
 
   salvar(): void {
-    this.admin.updateEmpresa(this.form.getRawValue()).subscribe(() => this.saved.set(true));
+    const raw = this.form.getRawValue();
+    const body = {
+      ...raw,
+      logo_url: raw.logo_url.trim() || null,
+    };
+    this.admin.updateEmpresa(body).subscribe(() => {
+      this.saved.set(true);
+      this.brand.applyFromEmpresa(body);
+    });
   }
 }

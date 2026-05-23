@@ -3,11 +3,11 @@
 } @else {
   @if (mesa(); as m) {
     <div class="mesa-page">
-      <div class="mesa-brand">
-        <mat-icon class="brand-icon">restaurant</mat-icon>
-        <h1>Duas Mãos, Uma Mesa</h1>
-        <p class="mesa-badge">Mesa {{ m.numero }}</p>
-      </div>
+      <app-restaurant-brand
+        size="md"
+        [subtitle]="'Mesa ' + m.numero"
+        [centered]="true"
+      />
 
       <mat-card class="aviso-card">
         <mat-icon>smart_toy</mat-icon>
@@ -37,6 +37,6 @@
       </div>
     </div>
   } @else {
-    <p>Mesa não encontrada.</p>
+    <p class="error-msg">Mesa não encontrada.</p>
   }
 }

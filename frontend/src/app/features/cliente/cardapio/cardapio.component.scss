@@ -1,7 +1,8 @@
 .cardapio-page {
   max-width: 960px;
   margin: 0 auto;
-  padding-bottom: 2rem;
+  padding-bottom: 5rem;
+  position: relative;
 }
 
 .cardapio-header {
@@ -9,16 +10,6 @@
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
-
-  h1 {
-    margin: 0;
-    font-size: 1.75rem;
-  }
-
-  p {
-    margin: 0.25rem 0 0;
-    opacity: 0.8;
-  }
 }
 
 .busca {
@@ -35,12 +26,19 @@
   top: 0;
   z-index: 10;
   padding: 0.5rem 0;
-  background: linear-gradient(#1a1a2e 80%, transparent);
+  background: linear-gradient(var(--bg) 80%, transparent);
 
   button.active {
-    background: rgba(233, 69, 96, 0.25);
-    border-color: #e94560;
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-hover);
   }
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
 }
 
 .produtos-grid {
@@ -52,12 +50,19 @@
 .produto-card {
   overflow: hidden;
   padding: 0 !important;
+  border: 1px solid var(--border);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  }
 }
 
 .produto-img-wrap {
   position: relative;
   aspect-ratio: 16 / 10;
-  background: #0f3460;
+  background: var(--surface-elevated);
 
   img {
     width: 100%;
@@ -77,6 +82,7 @@
     font-size: 64px;
     width: 64px;
     height: 64px;
+    color: var(--accent);
   }
 }
 
@@ -105,14 +111,14 @@
 
   .preco {
     font-weight: 700;
-    color: #e94560;
+    color: var(--accent);
     white-space: nowrap;
   }
 }
 
 .desc {
   font-size: 0.9rem;
-  opacity: 0.85;
+  color: var(--text-muted);
   margin: 0 0 0.75rem;
   line-height: 1.4;
 }
@@ -127,7 +133,8 @@
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  background: rgba(83, 52, 131, 0.5);
+  background: var(--accent-soft);
+  color: var(--accent-hover);
   padding: 0.15rem 0.45rem;
   border-radius: 4px;
 }
@@ -149,6 +156,14 @@
 
 .empty {
   text-align: center;
-  opacity: 0.6;
+  color: var(--text-muted);
   padding: 2rem;
+}
+
+.fab-chat {
+  position: fixed;
+  bottom: 1.5rem;
+  right: max(1.5rem, calc(50% - 480px + 1.5rem));
+  z-index: 20;
+  box-shadow: 0 4px 16px rgba(196, 92, 62, 0.4);
 }

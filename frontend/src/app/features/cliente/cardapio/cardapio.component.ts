@@ -5,7 +5,7 @@ import { Produto } from '../../../core/models';
 import { MATERIAL_IMPORTS } from '../../../shared/material';
 import { CurrencyPipe } from '@angular/common';
 import { produtoFotoUrl } from '../../../shared/produto-image.util';
-import { CategoriaLabelPipe } from '../../../shared/categoria-label.pipe';
+import { RestaurantBrandComponent } from '../../../shared/restaurant-brand/restaurant-brand.component';
 
 const CATEGORIAS = [
   { id: '', label: 'Todos' },
@@ -18,7 +18,7 @@ const CATEGORIAS = [
 @Component({
   selector: 'app-cardapio',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, CategoriaLabelPipe, ...MATERIAL_IMPORTS],
+  imports: [RouterLink, CurrencyPipe, RestaurantBrandComponent, ...MATERIAL_IMPORTS],
   templateUrl: './cardapio.component.html',
   styleUrl: './cardapio.component.scss',
 })
@@ -27,6 +27,7 @@ export class CardapioComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   produtos = signal<Produto[]>([]);
+  loading = signal(true);
   filtro = signal('');
   busca = signal('');
   mesaId = signal('');
@@ -50,7 +51,14 @@ export class CardapioComponent implements OnInit {
 
   carregar(): void {
     const cat = this.filtro();
-    this.catalog.getCardapio(cat || undefined).subscribe((p) => this.produtos.set(p));
+    this.loading.set(true);
+    this.catalog.getCardapio(cat || undefined).subscribe({
+      next: (p) => {
+        this.produtos.set(p);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
+    });
   }
 
   setCategoria(id: string): void {

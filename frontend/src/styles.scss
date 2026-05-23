@@ -1,14 +1,42 @@
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
+:root {
+  --bg: #1a1410;
+  --bg-gradient: linear-gradient(165deg, #1a1410 0%, #2c2118 45%, #1a1410 100%);
+  --surface: #2a211c;
+  --surface-elevated: #352920;
+  --surface-chat: #241c16;
+  --accent: #c45c3e;
+  --accent-hover: #d4845f;
+  --accent-soft: rgba(196, 92, 62, 0.2);
+  --text: #f5ebe0;
+  --text-muted: rgba(245, 235, 224, 0.72);
+  --border: rgba(245, 235, 224, 0.12);
+  --user-bubble: #5c3d2e;
+  --assistant-bubble: #352920;
+}
+
 html,
 body {
   height: 100%;
   margin: 0;
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
-  background: #1a1a2e;
-  color: #eee;
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  background: var(--bg);
+  background-image: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text);
 }
 
 a {
-  color: #ff6b6b;
+  color: var(--accent-hover);
+}
+
+.mat-mdc-card {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.mat-toolbar {
+  background: var(--surface-elevated) !important;
+  color: var(--text) !important;
 }

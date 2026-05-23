@@ -1,10 +1,7 @@
 <div class="cardapio-page">
   <header class="cardapio-header">
     <a mat-icon-button [routerLink]="['/mesa', mesaId()]"><mat-icon>arrow_back</mat-icon></a>
-    <div>
-      <h1>Cardápio digital</h1>
-      <p>Confira nossos pratos e bebidas</p>
-    </div>
+    <app-restaurant-brand size="sm" subtitle="Cardápio digital" />
   </header>
 
   <mat-form-field appearance="outline" class="busca">
@@ -25,46 +22,60 @@
     }
   </div>
 
-  <div class="produtos-grid">
-    @for (p of filtrados(); track p.id) {
-      <mat-card class="produto-card">
-        <div class="produto-img-wrap">
-          @if (foto(p); as src) {
-            <img [src]="src" [alt]="p.nome" loading="lazy" />
-          } @else {
-            <div class="produto-img-placeholder">
-              <mat-icon>restaurant_menu</mat-icon>
-            </div>
-          }
-          @if (p.tempo_preparo_minutos) {
-            <span class="tempo">{{ p.tempo_preparo_minutos }} min</span>
-          }
-        </div>
-        <mat-card-content>
-          <div class="produto-top">
-            <h3>{{ p.nome }}</h3>
-            <span class="preco">{{ p.preco | currency: 'BRL' }}</span>
+  @if (loading()) {
+    <div class="loading"><mat-spinner diameter="40" /></div>
+  } @else {
+    <div class="produtos-grid">
+      @for (p of filtrados(); track p.id) {
+        <mat-card class="produto-card">
+          <div class="produto-img-wrap">
+            @if (foto(p); as src) {
+              <img [src]="src" [alt]="p.nome" loading="lazy" />
+            } @else {
+              <div class="produto-img-placeholder">
+                <mat-icon>restaurant_menu</mat-icon>
+              </div>
+            }
+            @if (p.tempo_preparo_minutos) {
+              <span class="tempo">{{ p.tempo_preparo_minutos }} min</span>
+            }
           </div>
-          <p class="desc">{{ p.descricao }}</p>
-          @if (p.tags.length) {
-            <div class="tags">
-              @for (t of p.tags; track t) {
-                <span class="tag">{{ t }}</span>
-              }
+          <mat-card-content>
+            <div class="produto-top">
+              <h3>{{ p.nome }}</h3>
+              <span class="preco">{{ p.preco | currency: 'BRL' }}</span>
             </div>
-          }
-          @if (p.alergenos.length) {
-            <p class="alergenos">
-              <mat-icon inline>info</mat-icon>
-              Alergenos: {{ p.alergenos.join(', ') }}
-            </p>
-          }
-        </mat-card-content>
-      </mat-card>
-    }
-  </div>
+            <p class="desc">{{ p.descricao }}</p>
+            @if (p.tags.length) {
+              <div class="tags">
+                @for (t of p.tags; track t) {
+                  <span class="tag">{{ t }}</span>
+                }
+              </div>
+            }
+            @if (p.alergenos.length) {
+              <p class="alergenos">
+                <mat-icon inline>info</mat-icon>
+                Alergenos: {{ p.alergenos.join(', ') }}
+              </p>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
 
-  @if (!filtrados().length) {
-    <p class="empty">Nenhum item encontrado.</p>
+    @if (!filtrados().length) {
+      <p class="empty">Nenhum item encontrado.</p>
+    }
   }
+
+  <a
+    mat-fab
+    color="accent"
+    class="fab-chat"
+    [routerLink]="['/mesa', mesaId(), 'chat']"
+    aria-label="Pedir com assistente"
+  >
+    <mat-icon>chat</mat-icon>
+  </a>
 </div>

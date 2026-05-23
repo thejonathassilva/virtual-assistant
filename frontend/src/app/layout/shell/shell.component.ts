@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { EmpresaBrandStore } from '../../core/services/empresa-brand.store';
 import { MATERIAL_IMPORTS } from '../../shared/material';
 
 @Component({
@@ -12,6 +13,11 @@ import { MATERIAL_IMPORTS } from '../../shared/material';
 })
 export class ShellComponent {
   readonly auth = inject(AuthService);
+  readonly brand = inject(EmpresaBrandStore);
+
+  constructor() {
+    this.brand.ensureLoaded();
+  }
 
   logout(): void {
     this.auth.logout();

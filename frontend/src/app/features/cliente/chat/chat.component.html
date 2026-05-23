@@ -2,20 +2,31 @@
   <div class="chat-main">
     <header class="chat-header">
       <a mat-icon-button [routerLink]="['/mesa', mesaId()]"><mat-icon>arrow_back</mat-icon></a>
-      <div>
-        <h2>Assistente virtual</h2>
-        <p>Pedidos executados em tempo real no sistema</p>
-      </div>
+      <app-restaurant-brand size="sm" subtitle="Assistente virtual de pedidos" />
     </header>
 
-    <div class="messages">
-      @for (msg of mensagens(); track $index) {
-        <div class="bubble" [class.user]="msg.role === 'user'" [class.assistant]="msg.role === 'assistant'">
-          {{ msg.content }}
+    <div class="messages" #messagesEl>
+      @if (!mensagens().length && !digitando()) {
+        <div class="welcome">
+          <mat-icon>smart_toy</mat-icon>
+          <p>Olá! Peça pelo chat — ex: <em>"quero um hambúrguer e uma coca"</em></p>
         </div>
       }
-      @if (digitando()) {
-        <div class="bubble assistant typing">Digitando...</div>
+      @for (msg of mensagens(); track $index) {
+        @if (msg.content || msg.role === 'user') {
+          <div
+            class="bubble"
+            [class.user]="msg.role === 'user'"
+            [class.assistant]="msg.role === 'assistant'"
+          >
+            {{ msg.content }}
+          </div>
+        }
+      }
+      @if (digitando() && !mensagens().slice(-1)[0]?.content) {
+        <div class="bubble assistant typing">
+          <span class="dots"><span></span><span></span><span></span></span>
+        </div>
       }
     </div>
 
@@ -27,9 +38,10 @@
           (ngModelChange)="input.set($event)"
           (keydown.enter)="enviar()"
           placeholder="Ex: quero um X-Burger e uma coca"
+          [disabled]="digitando()"
         />
       </mat-form-field>
-      <button mat-fab color="primary" (click)="enviar()" [disabled]="digitando()">
+      <button mat-fab color="accent" (click)="enviar()" [disabled]="digitando() || !input().trim()">
         <mat-icon>send</mat-icon>
       </button>
     </div>

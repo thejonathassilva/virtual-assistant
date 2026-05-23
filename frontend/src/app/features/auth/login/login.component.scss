@@ -8,6 +8,11 @@
 .login-card {
   width: 100%;
   max-width: 400px;
+  border: 1px solid var(--border);
+}
+
+mat-card-header {
+  margin-bottom: 1rem;
 }
 
 .full {

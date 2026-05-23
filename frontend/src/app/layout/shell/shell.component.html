@@ -1,5 +1,5 @@
-<mat-toolbar color="primary" class="toolbar">
-  <span class="brand">Duas Mãos, Uma Mesa</span>
+<mat-toolbar class="toolbar">
+  <span class="brand">{{ brand.nome() }}</span>
   <span class="spacer"></span>
   @if (auth.user(); as u) {
     <span class="user">{{ u.nome }} ({{ u.role }})</span>

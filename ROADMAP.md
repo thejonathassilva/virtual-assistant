@@ -11,12 +11,17 @@
 - [x] Chat com streaming (SSE)
 - [x] Documentação local + templates AWS/GCP/Azure
 - [x] Script `scripts/smoke-test.ps1`
+- [x] Remoção do `frontend-legacy`
+- [x] Migrations TypeORM + `synchronize` desligado em produção
+- [x] Testes unitários (auth, catalog)
+- [x] CI GitHub Actions (build + testes)
+- [x] UX: branding dinâmico, tema warm, cardápio/chat melhorados
 
 ## Próximo (qualidade)
 
-- [ ] Testes unitários/integração nos serviços
-- [ ] Migrations TypeORM (`synchronize: false` em prod)
-- [ ] CI (GitHub Actions): build + smoke test
+- [ ] Testes de integração (DB + Redis em CI)
+- [ ] Smoke test no pipeline CI (Docker Compose)
+- [ ] E-mails de dev `@duasmaos.com` (opcional)
 
 ## Nuvem (quando necessário)
 

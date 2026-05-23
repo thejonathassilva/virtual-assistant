@@ -54,6 +54,10 @@ export function buildProxyEntries(): ProxyEntry[] {
       options: createProxyOptions(admin, { '^/api/admin': '' }),
     },
     {
+      filter: (pathname) => pathname === '/api/empresa',
+      options: createProxyOptions(admin, { '^/api/empresa': '/empresa' }),
+    },
+    {
       filter: (pathname) =>
         pathname.startsWith('/api/pedidos') ||
         pathname.startsWith('/api/cozinha') ||

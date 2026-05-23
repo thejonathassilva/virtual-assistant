@@ -29,6 +29,10 @@ export function isPublicRoute(method: string, path: string): boolean {
     return true;
   }
 
+  if (method === 'GET' && normalized === '/api/empresa') {
+    return true;
+  }
+
   if (normalized.startsWith('/api/chat')) {
     return true;
   }

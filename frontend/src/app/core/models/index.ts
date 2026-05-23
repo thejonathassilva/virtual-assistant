@@ -87,4 +87,5 @@ export interface Empresa {
   valores?: string;
   endereco?: string;
   telefone?: string;
+  logo_url?: string | null;
 }
