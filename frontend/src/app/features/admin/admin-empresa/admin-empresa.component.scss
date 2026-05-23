@@ -7,8 +7,8 @@
 .logo-preview {
   margin-bottom: 1rem;
   padding: 1rem;
-  background: var(--surface, #352920);
-  border: 1px solid var(--border, rgba(245, 235, 224, 0.12));
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
   border-radius: 12px;
   display: flex;
   justify-content: center;
@@ -27,6 +27,7 @@
   align-items: center;
   gap: 0.35rem;
   opacity: 0.5;
+  color: var(--text-muted);
 
   mat-icon {
     font-size: 40px;
@@ -37,5 +38,11 @@
 
 .ok {
   margin-left: 1rem;
-  color: #4caf50;
+  color: var(--success);
+}
+
+.row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
 }

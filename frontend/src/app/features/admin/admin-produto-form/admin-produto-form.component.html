@@ -1,7 +1,8 @@
-<a mat-button routerLink="/admin/produtos">← Produtos</a>
-<h2>{{ produtoId() ? 'Editar produto' : 'Novo produto' }}</h2>
+<div class="page form-page-wide">
+  <a class="back-link" routerLink="/admin/produtos">← Produtos</a>
+  <h2>{{ produtoId() ? 'Editar produto' : 'Novo produto' }}</h2>
 
-<form [formGroup]="form" (ngSubmit)="salvar()" class="form-grid">
+  <form [formGroup]="form" (ngSubmit)="salvar()" class="form-grid">
   <mat-card class="foto-card">
     <mat-card-header>
       <mat-card-title>Foto do produto</mat-card-title>
@@ -73,3 +74,4 @@
     </mat-card-content>
   </mat-card>
 </form>
+</div>

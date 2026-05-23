@@ -1,27 +1,8 @@
-.header-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-
-  h2 {
-    flex: 1;
-    margin: 0;
-  }
+.preco {
+  font-weight: 600;
+  color: var(--accent-hover);
 }
 
 .table {
   width: 100%;
-}
-
-.thumb {
-  width: 48px;
-  height: 48px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-.no-thumb {
-  opacity: 0.4;
 }

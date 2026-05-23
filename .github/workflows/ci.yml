@@ -58,3 +58,71 @@ jobs:
         run: |
           npm ci
           npm run build
+
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      CI: true
+      NODE_ENV: test
+      TYPEORM_SYNC: 'true'
+      REDIS_URL: redis://localhost:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: |
+            services/auth-service/package-lock.json
+            services/catalog-service/package-lock.json
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Create project databases
+        run: bash scripts/init-test-databases.sh
+        env:
+          PGHOST: localhost
+          PGPORT: 5432
+
+      - name: Integration tests auth-service
+        working-directory: services/auth-service
+        run: |
+          npm ci
+          npm run test:integration
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/restaurante_auth
+
+      - name: Integration tests catalog-service
+        working-directory: services/catalog-service
+        run: |
+          npm ci
+          npm run test:integration
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/restaurante_catalog

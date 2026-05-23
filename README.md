@@ -101,6 +101,9 @@ docker compose down -v
 
 # Testes unitários (Jest)
 .\scripts\run-tests.ps1
+
+# Testes de integração (Postgres + Redis) — ver infra/test/README.md
+.\scripts\run-integration-tests.ps1
 ```
 
 ---

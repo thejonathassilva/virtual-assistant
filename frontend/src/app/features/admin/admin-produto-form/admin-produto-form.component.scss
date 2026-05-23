@@ -16,7 +16,8 @@
   aspect-ratio: 1;
   border-radius: 12px;
   overflow: hidden;
-  background: #0f3460;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
   margin-bottom: 1rem;
 
   img {

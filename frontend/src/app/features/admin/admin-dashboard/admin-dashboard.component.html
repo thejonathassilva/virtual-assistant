@@ -1,89 +1,91 @@
-<h2>Administração</h2>
+<div class="page">
+  <h2>Administração</h2>
 
-<nav class="admin-nav">
-  <a mat-stroked-button routerLink="/admin/produtos">Produtos</a>
-  <a mat-stroked-button routerLink="/admin/usuarios">Usuários</a>
-  <a mat-stroked-button routerLink="/admin/empresa">Empresa</a>
-  <a mat-stroked-button routerLink="/admin/config-ia">Config IA</a>
-</nav>
+  <nav class="page-nav">
+    <a mat-stroked-button routerLink="/admin/produtos" routerLinkActive="active">Produtos</a>
+    <a mat-stroked-button routerLink="/admin/usuarios" routerLinkActive="active">Usuários</a>
+    <a mat-stroked-button routerLink="/admin/empresa" routerLinkActive="active">Empresa</a>
+    <a mat-stroked-button routerLink="/admin/config-ia" routerLinkActive="active">Config IA</a>
+  </nav>
 
-<div class="grid">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>{{ empresa()?.nome || 'Empresa' }}</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <p>{{ empresa()?.endereco }}</p>
-      <p>{{ empresa()?.telefone }}</p>
-    </mat-card-content>
-  </mat-card>
+  <div class="grid">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{ empresa()?.nome || 'Empresa' }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>{{ empresa()?.endereco }}</p>
+        <p>{{ empresa()?.telefone }}</p>
+      </mat-card-content>
+    </mat-card>
 
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Cardápio</mat-card-title>
-      <mat-card-subtitle>{{ produtos().length }} produtos</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-      <mat-list>
-        @for (p of produtos().slice(0, 5); track p.id) {
-          <mat-list-item>
-            <span matListItemTitle>{{ p.nome }}</span>
-            <span matListItemLine>{{ p.preco | currency: 'BRL' }}</span>
-          </mat-list-item>
-        }
-      </mat-list>
-    </mat-card-content>
-  </mat-card>
-
-  <mat-card class="wide">
-    <mat-card-header>
-      <mat-card-title>Métricas IA (7 dias)</mat-card-title>
-      <mat-card-subtitle>
-        {{ totalConversas() }} conversas · ~US$ {{ totalCustoUsd() | number: '1.4-4' }}
-      </mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-      @if (metricas(); as m) {
-        <div class="charts">
-          <div class="chart-block">
-            <h4>Conversas / dia</h4>
-            <div class="bars">
-              @for (b of conversasChart(); track b.label) {
-                <div class="bar-col">
-                  <div class="bar" [style.height.%]="b.pct"></div>
-                  <span class="bar-val">{{ b.value }}</span>
-                  <span class="bar-lbl">{{ b.label }}</span>
-                </div>
-              }
-            </div>
-          </div>
-          <div class="chart-block">
-            <h4>Tokens / dia</h4>
-            <div class="bars">
-              @for (b of tokensChart(); track b.label) {
-                <div class="bar-col">
-                  <div class="bar tokens" [style.height.%]="b.pct"></div>
-                  <span class="bar-val">{{ b.value }}</span>
-                  <span class="bar-lbl">{{ b.label }}</span>
-                </div>
-              }
-            </div>
-          </div>
-        </div>
-        <mat-list class="metric-list">
-          @for (row of m.metricas; track row.data) {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Cardápio</mat-card-title>
+        <mat-card-subtitle>{{ produtos().length }} produtos</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list>
+          @for (p of produtos().slice(0, 5); track p.id) {
             <mat-list-item>
-              <span matListItemTitle>{{ row.data | date: 'dd/MM' }}</span>
-              <span matListItemLine>
-                {{ row.pedidos_completados_ia }} pedidos IA ·
-                {{ row.fallbacks_garcom }} fallbacks garçom
-              </span>
+              <span matListItemTitle>{{ p.nome }}</span>
+              <span matListItemLine>{{ p.preco | currency: 'BRL' }}</span>
             </mat-list-item>
           }
         </mat-list>
-      } @else {
-        <p>Carregando métricas…</p>
-      }
-    </mat-card-content>
-  </mat-card>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="wide">
+      <mat-card-header>
+        <mat-card-title>Métricas IA (7 dias)</mat-card-title>
+        <mat-card-subtitle>
+          {{ totalConversas() }} conversas · ~US$ {{ totalCustoUsd() | number: '1.4-4' }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        @if (metricas(); as m) {
+          <div class="charts">
+            <div class="chart-block">
+              <h4>Conversas / dia</h4>
+              <div class="bars">
+                @for (b of conversasChart(); track b.label) {
+                  <div class="bar-col">
+                    <div class="bar" [style.height.%]="b.pct"></div>
+                    <span class="bar-val">{{ b.value }}</span>
+                    <span class="bar-lbl">{{ b.label }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="chart-block">
+              <h4>Tokens / dia</h4>
+              <div class="bars">
+                @for (b of tokensChart(); track b.label) {
+                  <div class="bar-col">
+                    <div class="bar tokens" [style.height.%]="b.pct"></div>
+                    <span class="bar-val">{{ b.value }}</span>
+                    <span class="bar-lbl">{{ b.label }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+          <mat-list class="metric-list">
+            @for (row of m.metricas; track row.data) {
+              <mat-list-item>
+                <span matListItemTitle>{{ row.data | date: 'dd/MM' }}</span>
+                <span matListItemLine>
+                  {{ row.pedidos_completados_ia }} pedidos IA ·
+                  {{ row.fallbacks_garcom }} fallbacks garçom
+                </span>
+              </mat-list-item>
+            }
+          </mat-list>
+        } @else {
+          <p>Carregando métricas…</p>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>

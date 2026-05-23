@@ -16,10 +16,10 @@
 - [x] Testes unitários (auth, catalog)
 - [x] CI GitHub Actions (build + testes)
 - [x] UX: branding dinâmico, tema warm, cardápio/chat melhorados
+- [x] Testes de integração (DB + Redis em CI)
 
 ## Próximo (qualidade)
 
-- [ ] Testes de integração (DB + Redis em CI)
 - [ ] Smoke test no pipeline CI (Docker Compose)
 - [ ] E-mails de dev `@duasmaos.com` (opcional)
 

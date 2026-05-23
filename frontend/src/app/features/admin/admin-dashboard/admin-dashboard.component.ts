@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
   AdminService,
   MetricaIaDiaria,
@@ -19,7 +19,7 @@ export interface BarChartItem {
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, DatePipe, DecimalPipe, ...MATERIAL_IMPORTS],
+  imports: [RouterLink, RouterLinkActive, CurrencyPipe, DatePipe, DecimalPipe, ...MATERIAL_IMPORTS],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss',
 })

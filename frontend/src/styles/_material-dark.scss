@@ -1,0 +1,156 @@
+// Overrides Material MDC para o tema escuro do restaurante
+
+// ---- Tabelas ----
+.mat-mdc-table {
+  background: transparent !important;
+  color: var(--text) !important;
+}
+
+.mat-mdc-header-row {
+  background: var(--surface-elevated) !important;
+}
+
+.mat-mdc-header-cell {
+  color: var(--accent-hover) !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-bottom-color: var(--border) !important;
+}
+
+.mat-mdc-row {
+  background: var(--surface) !important;
+
+  &:hover {
+    background: var(--surface-elevated) !important;
+  }
+}
+
+.mat-mdc-cell {
+  color: var(--text) !important;
+  border-bottom-color: var(--border) !important;
+}
+
+// ---- Cards ----
+.mat-mdc-card {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2) !important;
+}
+
+.mat-mdc-card-title {
+  color: var(--text) !important;
+  font-size: 1.15rem !important;
+}
+
+.mat-mdc-card-subtitle {
+  color: var(--text-muted) !important;
+}
+
+// ---- Listas ----
+.mat-mdc-list-item-title,
+.mdc-list-item__primary-text {
+  color: var(--text) !important;
+}
+
+.mat-mdc-list-item-line,
+.mdc-list-item__secondary-text {
+  color: var(--text-muted) !important;
+}
+
+.mat-mdc-list-base {
+  background: transparent !important;
+}
+
+// ---- Form fields ----
+.mat-mdc-form-field {
+  --mdc-outlined-text-field-label-text-color: var(--text-muted);
+  --mdc-outlined-text-field-input-text-color: var(--text);
+  --mdc-outlined-text-field-outline-color: var(--border);
+  --mdc-outlined-text-field-hover-outline-color: var(--accent);
+  --mdc-outlined-text-field-focus-outline-color: var(--accent);
+  --mdc-outlined-text-field-focus-label-text-color: var(--accent-hover);
+  --mat-form-field-focus-select-arrow-color: var(--accent);
+}
+
+.mat-mdc-form-field-hint,
+.mat-mdc-form-field-error {
+  color: var(--text-muted) !important;
+}
+
+// ---- Botões ----
+.mat-mdc-outlined-button:not(:disabled) {
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.mat-mdc-outlined-button:hover:not(:disabled) {
+  background: var(--accent-soft) !important;
+  border-color: var(--accent) !important;
+}
+
+.mat-mdc-unelevated-button.mat-primary,
+.mat-mdc-raised-button.mat-primary {
+  --mdc-filled-button-container-color: var(--accent) !important;
+  --mdc-filled-button-label-text-color: #fff !important;
+}
+
+.mat-mdc-unelevated-button.mat-accent {
+  --mdc-filled-button-container-color: var(--accent-hover) !important;
+}
+
+.mat-mdc-button:not(:disabled) {
+  color: var(--accent-hover) !important;
+}
+
+.mat-mdc-button.mat-warn:not(:disabled) {
+  color: #e57373 !important;
+}
+
+// ---- Chips ----
+.mat-mdc-chip.mat-mdc-standard-chip {
+  --mdc-chip-elevated-container-color: var(--accent-soft);
+  --mdc-chip-label-text-color: var(--accent-hover);
+}
+
+.mat-mdc-chip.mat-mdc-standard-chip[highlighted='true'] {
+  --mdc-chip-elevated-container-color: rgba(76, 175, 80, 0.25);
+  --mdc-chip-label-text-color: #81c784;
+}
+
+// ---- Toolbar ----
+.mat-toolbar {
+  background: var(--surface-elevated) !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid var(--border);
+}
+
+// ---- Select / options ----
+.mat-mdc-select-value,
+.mat-mdc-select-arrow {
+  color: var(--text) !important;
+}
+
+.mat-mdc-option {
+  color: var(--text) !important;
+}
+
+// ---- Checkbox ----
+.mat-mdc-checkbox {
+  --mdc-checkbox-unselected-icon-color: var(--text-muted);
+  --mdc-checkbox-selected-icon-color: var(--accent);
+}
+
+// ---- Spinner ----
+.mat-mdc-progress-spinner {
+  --mdc-circular-progress-active-indicator-color: var(--accent);
+}
+
+// ---- Snackbar ----
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: var(--surface-elevated);
+  --mdc-snackbar-supporting-text-color: var(--text);
+}

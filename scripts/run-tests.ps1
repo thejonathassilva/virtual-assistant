@@ -1,6 +1,15 @@
 # Executa testes unitários dos serviços com Jest
+param(
+  [switch]$Integration
+)
+
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
+
+if ($Integration) {
+  & (Join-Path $PSScriptRoot "run-integration-tests.ps1")
+  exit $LASTEXITCODE
+}
 
 $services = @('auth-service', 'catalog-service')
 

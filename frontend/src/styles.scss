@@ -1,4 +1,6 @@
-@import '@angular/material/prebuilt-themes/indigo-pink.css';
+@import '@angular/material/prebuilt-themes/pink-bluegrey.css';
+@import './styles/material-dark';
+@import './styles/pages';
 
 :root {
   --bg: #1a1410;
@@ -14,6 +16,8 @@
   --border: rgba(245, 235, 224, 0.12);
   --user-bubble: #5c3d2e;
   --assistant-bubble: #352920;
+  --success: #81c784;
+  --warn: #e57373;
 }
 
 html,
@@ -31,12 +35,16 @@ a {
   color: var(--accent-hover);
 }
 
-.mat-mdc-card {
-  background: var(--surface) !important;
-  color: var(--text) !important;
+h2,
+h3,
+h4 {
+  color: var(--text);
 }
 
-.mat-toolbar {
-  background: var(--surface-elevated) !important;
-  color: var(--text) !important;
+p {
+  color: var(--text-muted);
+}
+
+.mat-mdc-card-content p {
+  color: var(--text-muted);
 }
