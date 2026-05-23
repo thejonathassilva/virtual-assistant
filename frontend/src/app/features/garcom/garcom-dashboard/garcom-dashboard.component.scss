@@ -1,0 +1,49 @@
+.alerta {
+  background: #e94560;
+  color: #fff;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 1rem;
+}
+
+.mapa {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 0.5rem;
+}
+
+.mesa-btn {
+  aspect-ratio: 1;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.mesa-btn.livre {
+  border-color: #4caf50 !important;
+}
+
+.mesa-btn.ocupada {
+  border-color: #ffc107 !important;
+}
+
+.mesa-btn.pagamento {
+  border-color: #9e9e9e !important;
+}
+
+.mesa-btn.active {
+  background: rgba(233, 69, 96, 0.2);
+}
+
+.full {
+  width: 100%;
+  display: block;
+}

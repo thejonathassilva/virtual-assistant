@@ -1,0 +1,14 @@
+.full {
+  width: 100%;
+  display: block;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.error {
+  color: #c62828;
+}

@@ -1,0 +1,78 @@
+.admin-nav {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 700px) {
+  .charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-block h4 {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  min-height: 120px;
+}
+
+.bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 2rem;
+}
+
+.bar {
+  width: 100%;
+  max-width: 2.5rem;
+  min-height: 4px;
+  background: #5c6bc0;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.2s ease;
+}
+
+.bar.tokens {
+  background: #26a69a;
+}
+
+.bar-val {
+  font-size: 0.7rem;
+  margin-top: 0.25rem;
+}
+
+.bar-lbl {
+  font-size: 0.65rem;
+  color: #888;
+}
+
+.metric-list {
+  max-height: 160px;
+  overflow: auto;
+}

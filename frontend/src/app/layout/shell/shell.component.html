@@ -1,0 +1,11 @@
+<mat-toolbar color="primary" class="toolbar">
+  <span class="brand">Duas Mãos, Uma Mesa</span>
+  <span class="spacer"></span>
+  @if (auth.user(); as u) {
+    <span class="user">{{ u.nome }} ({{ u.role }})</span>
+    <button mat-button (click)="logout()">Sair</button>
+  }
+</mat-toolbar>
+<main class="main">
+  <router-outlet />
+</main>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Staff — Login</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header><h1>Área restrita</h1></header>
+  <main>
+    <div class="card">
+      <label>Email <input id="email" value="admin@restaurante.com" style="width:100%" /></label>
+      <label>Senha <input id="senha" type="password" value="Restaurante@123" style="width:100%" /></label>
+      <button id="login" style="margin-top:1rem;width:100%;padding:0.75rem;background:#e94560;color:#fff;border:none;border-radius:8px">Entrar</button>
+      <pre id="out" style="margin-top:1rem;overflow:auto"></pre>
+    </div>
+    <p><a href="/">← Voltar</a></p>
+  </main>
+  <script>
+    document.getElementById('login').onclick = async () => {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: document.getElementById('email').value,
+          senha: document.getElementById('senha').value,
+        }),
+      });
+      const data = await res.json();
+      document.getElementById('out').textContent = JSON.stringify(data, null, 2);
+      if (data.access_token) localStorage.setItem('token', data.access_token);
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+.login-wrap {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+}
+
+.full {
+  width: 100%;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.error {
+  color: #ff6b6b;
+  font-size: 0.875rem;
+}

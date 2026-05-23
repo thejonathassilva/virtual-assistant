@@ -1,0 +1,5 @@
+{
+  "restaurante": "Duas Mãos, Uma Mesa",
+  "categorias": ["entradas", "pratos_principais", "bebidas", "sobremesas"],
+  "observacao": "Sincronizar com catalog-service / S3 para RAG em produção AWS"
+}

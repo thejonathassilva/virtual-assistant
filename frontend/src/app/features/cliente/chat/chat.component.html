@@ -1,0 +1,71 @@
+<div class="chat-layout">
+  <div class="chat-main">
+    <header class="chat-header">
+      <a mat-icon-button [routerLink]="['/mesa', mesaId()]"><mat-icon>arrow_back</mat-icon></a>
+      <div>
+        <h2>Assistente virtual</h2>
+        <p>Pedidos executados em tempo real no sistema</p>
+      </div>
+    </header>
+
+    <div class="messages">
+      @for (msg of mensagens(); track $index) {
+        <div class="bubble" [class.user]="msg.role === 'user'" [class.assistant]="msg.role === 'assistant'">
+          {{ msg.content }}
+        </div>
+      }
+      @if (digitando()) {
+        <div class="bubble assistant typing">Digitando...</div>
+      }
+    </div>
+
+    <div class="input-row">
+      <mat-form-field appearance="outline" class="grow">
+        <input
+          matInput
+          [ngModel]="input()"
+          (ngModelChange)="input.set($event)"
+          (keydown.enter)="enviar()"
+          placeholder="Ex: quero um X-Burger e uma coca"
+        />
+      </mat-form-field>
+      <button mat-fab color="primary" (click)="enviar()" [disabled]="digitando()">
+        <mat-icon>send</mat-icon>
+      </button>
+    </div>
+    <button mat-stroked-button class="garcom" (click)="chamarGarcom()">
+      <mat-icon>room_service</mat-icon>
+      Chamar garçom
+    </button>
+  </div>
+
+  <aside class="resumo">
+    <h3>Seu pedido</h3>
+    @if (pedido(); as p) {
+      @if (p.itens.length) {
+        <div class="itens-list">
+          @for (item of p.itens; track item.id) {
+            <div class="item-row">
+              @if (fotoProduto(item.produto_id); as src) {
+                <img [src]="src" [alt]="nomeProduto(item.produto_id)" class="item-thumb" />
+              } @else {
+                <div class="item-thumb placeholder"><mat-icon>fastfood</mat-icon></div>
+              }
+              <div class="item-info">
+                <strong>{{ item.quantidade }}× {{ nomeProduto(item.produto_id) }}</strong>
+                @if (item.observacoes) {
+                  <small>{{ item.observacoes }}</small>
+                }
+              </div>
+            </div>
+          }
+        </div>
+        <p class="total">Total estimado: {{ p.valor_total | currency: 'BRL' }}</p>
+      } @else {
+        <p class="empty">Nenhum item ainda</p>
+      }
+    } @else {
+      <p class="empty">Converse com o assistente para montar seu pedido</p>
+    }
+  </aside>
+</div>

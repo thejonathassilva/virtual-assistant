@@ -1,0 +1,96 @@
+.cozinha-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.colunas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .colunas {
+    grid-template-columns: 1fr;
+  }
+}
+
+.col {
+  h3 {
+    margin: 0 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid #333;
+  }
+
+  &.pendente h3 {
+    border-color: #ffc107;
+  }
+
+  &.preparo h3 {
+    border-color: #2196f3;
+  }
+
+  &.pronto h3 {
+    border-color: #4caf50;
+  }
+}
+
+.pedido-card {
+  margin-bottom: 0.75rem;
+}
+
+.pedido-card.ready {
+  border-left: 4px solid #4caf50;
+}
+
+.item-line {
+  padding: 0.35rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+  .qtd {
+    font-weight: 700;
+    margin-right: 0.35rem;
+  }
+
+  .obs {
+    display: block;
+    opacity: 0.75;
+    font-style: italic;
+  }
+}
+
+.item-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ok-icon {
+  color: #4caf50;
+}
+
+.valor {
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.empty-col {
+  opacity: 0.5;
+  font-size: 0.9rem;
+}

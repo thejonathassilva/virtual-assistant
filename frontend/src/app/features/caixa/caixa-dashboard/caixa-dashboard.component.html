@@ -1,0 +1,45 @@
+<h2>Caixa</h2>
+
+<div class="layout">
+  <section>
+    <h3>Mesas com conta aberta</h3>
+    <mat-list>
+      @for (m of abertas(); track m.pedido_id) {
+        <mat-list-item (click)="verConta(m.mesa_id)" class="clickable">
+          <span matListItemTitle>Mesa {{ numeroMesa(m.mesa_id) }}</span>
+          <span matListItemLine>{{ m.valor_total | currency: 'BRL' }} — {{ m.itens_count }} itens</span>
+        </mat-list-item>
+      }
+    </mat-list>
+    @if (!abertas().length) {
+      <p class="empty">Nenhuma conta aberta</p>
+    }
+  </section>
+
+  <mat-card class="conta">
+    @if (conta(); as p) {
+      <mat-card-header>
+        <mat-card-title>Conta — Mesa {{ numeroMesa(p.mesa_id) }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @for (item of p.itens; track item.id) {
+          <p>{{ item.quantidade }}× {{ nomeProduto(item.produto_id) }} — {{ item.preco_unitario | currency: 'BRL' }}</p>
+        }
+        <p class="total">Total: {{ p.valor_total | currency: 'BRL' }}</p>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Pagamento</mat-label>
+          <mat-select [value]="formaPagamento()" (selectionChange)="formaPagamento.set($event.value)">
+            <mat-option value="pix">PIX</mat-option>
+            <mat-option value="cartao">Cartão</mat-option>
+            <mat-option value="dinheiro">Dinheiro</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-flat-button color="primary" (click)="fechar()">Fechar conta</button>
+      </mat-card-actions>
+    } @else {
+      <p>Selecione uma mesa</p>
+    }
+  </mat-card>
+</div>

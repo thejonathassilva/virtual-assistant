@@ -1,0 +1,29 @@
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.brand {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-size: 0.95rem;
+  max-width: 12rem;
+  line-height: 1.2;
+}
+
+.user {
+  margin-right: 0.5rem;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.main {
+  padding: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}

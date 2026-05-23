@@ -1,0 +1,24 @@
+node_modules/
+dist/
+.env
+.env.local
+*.log
+.DS_Store
+coverage/
+.angular/
+pgdata/
+
+# Uploads locais (volume nomeado no compose; pasta espelhada se existir)
+uploads/
+services/catalog-service/uploads/
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# OS
+Thumbs.db
+
+# Build artifacts
+*.tsbuildinfo

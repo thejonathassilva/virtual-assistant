@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Duas Mãos, Uma Mesa</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Duas Mãos, Uma Mesa</h1>
+    <p>Sistema de restaurante com assistente virtual (desenvolvimento local)</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Acesso rápido</h2>
+      <ul>
+        <li><a href="/api/docs" target="_blank">API Gateway — Swagger</a></li>
+        <li><a href="#" id="link-cardapio">Cardápio público (JSON)</a></li>
+        <li><a href="/mesa.html">Simular cliente na mesa (QR)</a></li>
+        <li><a href="/staff.html">Painel staff (login)</a></li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Microserviços</h2>
+      <table>
+        <thead><tr><th>Serviço</th><th>Porta interna</th></tr></thead>
+        <tbody>
+          <tr><td>API Gateway (host)</td><td>3008 → 3000</td></tr>
+          <tr><td>Auth</td><td>3001</td></tr>
+          <tr><td>Catalog</td><td>3002</td></tr>
+          <tr><td>Tables</td><td>3003</td></tr>
+          <tr><td>Orders</td><td>3004</td></tr>
+          <tr><td>AI</td><td>3005</td></tr>
+          <tr><td>Realtime (WebSocket)</td><td>3006</td></tr>
+          <tr><td>Admin</td><td>3007</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Credenciais de teste</h2>
+      <p><code>admin@restaurante.com</code> / <code>Restaurante@123</code></p>
+      <p>Também: cozinha, garcom, caixa @restaurante.com (mesma senha)</p>
+    </section>
+  </main>
+
+  <script>
+    document.getElementById('link-cardapio').href = '/api/cardapio';
+    document.getElementById('link-cardapio').addEventListener('click', async (e) => {
+      e.preventDefault();
+      const res = await fetch('/api/cardapio');
+      const data = await res.json();
+      const w = window.open('', '_blank');
+      w.document.write('<pre>' + JSON.stringify(data, null, 2) + '</pre>');
+    });
+  </script>
+</body>
+</html>

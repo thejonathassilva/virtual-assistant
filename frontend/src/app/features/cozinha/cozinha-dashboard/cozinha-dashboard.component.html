@@ -1,0 +1,100 @@
+<div class="cozinha-header">
+  <h2>Cozinha</h2>
+  @if (stats(); as s) {
+    <div class="stats">
+      <mat-chip>Fila: {{ s['pedidos_na_fila'] }}</mat-chip>
+      <mat-chip>Itens pendentes: {{ s['itens_pendentes'] }}</mat-chip>
+      <mat-chip>Em preparo: {{ s['itens_em_preparo'] }}</mat-chip>
+    </div>
+  }
+</div>
+
+<div class="colunas">
+  <section class="col pendente">
+    <h3>Pendentes</h3>
+    @for (p of porStatus('enviado_cozinha'); track p.id) {
+      <mat-card class="pedido-card">
+        <mat-card-header>
+          <mat-card-title>{{ labelMesa(p.mesa_id) }}</mat-card-title>
+          <mat-card-subtitle>{{ p.created_at | date: 'HH:mm' }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          @for (item of p.itens; track item.id) {
+            <div class="item-line">
+              <span class="qtd">{{ item.quantidade }}×</span>
+              <span class="nome">{{ nomeProduto(item.produto_id) }}</span>
+              @if (item.observacoes) {
+                <small class="obs">{{ item.observacoes }}</small>
+              }
+            </div>
+          }
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-flat-button color="primary" (click)="iniciar(p)">
+            Iniciar preparo
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    } @empty {
+      <p class="empty-col">Nenhum pedido pendente</p>
+    }
+  </section>
+
+  <section class="col preparo">
+    <h3>Em preparo</h3>
+    @for (p of porStatus('em_preparo'); track p.id) {
+      <mat-card class="pedido-card">
+        <mat-card-header>
+          <mat-card-title>{{ labelMesa(p.mesa_id) }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @for (item of p.itens; track item.id) {
+            <div class="item-line item-actions">
+              <div>
+                <span class="qtd">{{ item.quantidade }}×</span>
+                <span class="nome">{{ nomeProduto(item.produto_id) }}</span>
+                @if (item.observacoes) {
+                  <small class="obs">{{ item.observacoes }}</small>
+                }
+              </div>
+              @if (item.status !== 'pronto' && item.status !== 'cancelado') {
+                <button mat-stroked-button (click)="itemPronto(p, item.id)">
+                  Item pronto
+                </button>
+              } @else {
+                <mat-icon class="ok-icon">check_circle</mat-icon>
+              }
+            </div>
+          }
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-flat-button color="accent" (click)="pronto(p)">
+            Pedido pronto (garçom)
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    } @empty {
+      <p class="empty-col">Nada em preparo</p>
+    }
+  </section>
+
+  <section class="col pronto">
+    <h3>Prontos</h3>
+    @for (p of porStatus('pronto'); track p.id) {
+      <mat-card class="pedido-card ready">
+        <mat-card-header>
+          <mat-card-title>{{ labelMesa(p.mesa_id) }}</mat-card-title>
+          <mat-card-subtitle>Aguardando retirada</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          @for (item of p.itens; track item.id) {
+            <p>{{ item.quantidade }}× {{ nomeProduto(item.produto_id) }}</p>
+          }
+          <p class="valor">{{ p.valor_total | currency: 'BRL' }}</p>
+        </mat-card-content>
+      </mat-card>
+    } @empty {
+      <p class="empty-col">Nenhum pronto</p>
+    }
+  </section>
+</div>

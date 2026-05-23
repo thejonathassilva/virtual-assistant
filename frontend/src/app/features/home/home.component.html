@@ -1,0 +1,22 @@
+<div class="hero">
+  <h1>Duas Mãos, Uma Mesa</h1>
+  <p>Restaurante com assistente virtual de pedidos</p>
+  <div class="actions">
+    <a mat-flat-button color="primary" routerLink="/login">Área da equipe</a>
+  </div>
+</div>
+
+@if (auth.isLoggedIn() && mesasList().length) {
+  <mat-card class="mesas-dev">
+    <mat-card-header>
+      <mat-card-title>Mesas (dev — simular QR)</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="mesa-links">
+        @for (m of mesasList(); track m.id) {
+          <a mat-stroked-button [routerLink]="['/mesa', m.id]">Mesa {{ m.numero }}</a>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+}

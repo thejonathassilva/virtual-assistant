@@ -1,0 +1,24 @@
+.hero {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.actions {
+  margin-top: 2rem;
+}
+
+.mesas-dev {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.mesa-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

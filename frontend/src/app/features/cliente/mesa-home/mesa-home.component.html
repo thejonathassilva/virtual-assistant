@@ -1,0 +1,42 @@
+@if (loading()) {
+  <div class="center"><mat-spinner /></div>
+} @else {
+  @if (mesa(); as m) {
+    <div class="mesa-page">
+      <div class="mesa-brand">
+        <mat-icon class="brand-icon">restaurant</mat-icon>
+        <h1>Duas Mãos, Uma Mesa</h1>
+        <p class="mesa-badge">Mesa {{ m.numero }}</p>
+      </div>
+
+      <mat-card class="aviso-card">
+        <mat-icon>smart_toy</mat-icon>
+        <p>
+          Você será atendido por um <strong>assistente virtual</strong> alimentado por IA.
+          Também pode navegar pelo cardápio com fotos dos pratos.
+        </p>
+      </mat-card>
+
+      @if (!m.sessao_ativa_id) {
+        <button mat-flat-button color="accent" class="cta-wide" (click)="abrirSessao()">
+          Iniciar atendimento na mesa
+        </button>
+      }
+
+      <div class="cta-grid">
+        <a mat-flat-button color="primary" class="cta-card" [routerLink]="['cardapio']">
+          <mat-icon>menu_book</mat-icon>
+          <span>Abrir cardápio</span>
+          <small>Navegue pelos pratos com fotos</small>
+        </a>
+        <a mat-stroked-button class="cta-card accent" [routerLink]="['chat']">
+          <mat-icon>chat</mat-icon>
+          <span>Pedir com assistente</span>
+          <small>Converse e monte seu pedido</small>
+        </a>
+      </div>
+    </div>
+  } @else {
+    <p>Mesa não encontrada.</p>
+  }
+}

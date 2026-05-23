@@ -1,0 +1,62 @@
+<h2>Garçom — Mapa de mesas</h2>
+
+@if (alerta()) {
+  <div class="alerta">
+    {{ alerta() }}
+    <button mat-icon-button (click)="alerta.set(null)"><mat-icon>close</mat-icon></button>
+  </div>
+}
+
+<div class="layout">
+  <div class="mapa">
+    @for (m of mesas(); track m.id) {
+      <button
+        mat-stroked-button
+        class="mesa-btn"
+        [class]="statusClass(m)"
+        [class.active]="selecionada()?.id === m.id"
+        (click)="selecionar(m)"
+      >
+        {{ m.numero }}
+      </button>
+    }
+  </div>
+
+  <mat-card class="detalhe">
+  @if (selecionada(); as mesa) {
+    <mat-card-header>
+      <mat-card-title>Mesa {{ mesa.numero }}</mat-card-title>
+      <mat-card-subtitle>{{ mesa.status }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      @if (pedido(); as p) {
+        <h4>Pedido atual</h4>
+        @for (item of p.itens; track item.id) {
+          <p>{{ item.quantidade }}× {{ nomeProduto(item.produto_id) }} <small>({{ item.status }})</small></p>
+        }
+        <p><strong>{{ p.valor_total | currency: 'BRL' }}</strong></p>
+        <button mat-flat-button color="primary" (click)="enviarCozinha()">Enviar à cozinha</button>
+      } @else {
+        <p>Sem pedido aberto</p>
+      }
+
+      <h4>Adicionar item</h4>
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Produto</mat-label>
+        <mat-select [ngModel]="produtoId()" (ngModelChange)="produtoId.set($event)">
+          @for (pr of produtos(); track pr.id) {
+            <mat-option [value]="pr.id">{{ pr.nome }} — {{ pr.preco | currency: 'BRL' }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Qtd</mat-label>
+        <input matInput type="number" min="1" [ngModel]="qtd()" (ngModelChange)="qtd.set(+$event)" />
+      </mat-form-field>
+      <button mat-stroked-button (click)="adicionarItem()">Adicionar</button>
+    </mat-card-content>
+  } @else {
+    <p>Selecione uma mesa</p>
+  }
+  </mat-card>
+</div>

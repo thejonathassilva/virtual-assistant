@@ -1,0 +1,10 @@
+.full {
+  width: 100%;
+  display: block;
+}
+
+.row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}

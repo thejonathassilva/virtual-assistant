@@ -1,0 +1,25 @@
+<a mat-button routerLink="/admin">← Admin</a>
+<h2>Dados da empresa</h2>
+
+<form [formGroup]="form" (ngSubmit)="salvar()">
+  <mat-form-field appearance="outline" class="full">
+    <mat-label>Nome</mat-label>
+    <input matInput formControlName="nome" />
+  </mat-form-field>
+  <mat-form-field appearance="outline" class="full">
+    <mat-label>Missão</mat-label>
+    <textarea matInput formControlName="missao" rows="3"></textarea>
+  </mat-form-field>
+  <mat-form-field appearance="outline" class="full">
+    <mat-label>Endereço</mat-label>
+    <input matInput formControlName="endereco" />
+  </mat-form-field>
+  <mat-form-field appearance="outline" class="full">
+    <mat-label>Telefone</mat-label>
+    <input matInput formControlName="telefone" />
+  </mat-form-field>
+  <button mat-flat-button color="primary" type="submit">Salvar</button>
+  @if (saved()) {
+    <span class="ok">Salvo!</span>
+  }
+</form>
