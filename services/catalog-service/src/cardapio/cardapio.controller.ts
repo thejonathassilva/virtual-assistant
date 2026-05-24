@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Headers, Param } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { CategoriaProduto } from '../products/entities/product.entity';
 import { CardapioService } from './cardapio.service';
@@ -10,14 +10,17 @@ export class CardapioController {
 
   @Get()
   @ApiOperation({ summary: 'Cardápio público (apenas produtos ativos)' })
-  getCardapio() {
-    return this.cardapioService.getCardapioCompleto();
+  getCardapio(@Headers('x-restaurante-id') restauranteId?: string) {
+    return this.cardapioService.getCardapioCompleto(restauranteId);
   }
 
   @Get(':categoria')
   @ApiOperation({ summary: 'Cardápio por categoria (apenas produtos ativos)' })
   @ApiParam({ name: 'categoria', enum: CategoriaProduto })
-  getCardapioPorCategoria(@Param('categoria') categoria: string) {
-    return this.cardapioService.getCardapioPorCategoria(categoria);
+  getCardapioPorCategoria(
+    @Param('categoria') categoria: string,
+    @Headers('x-restaurante-id') restauranteId?: string,
+  ) {
+    return this.cardapioService.getCardapioPorCategoria(categoria, restauranteId);
   }
 }

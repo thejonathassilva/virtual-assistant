@@ -38,27 +38,64 @@
 }
 
 .cta-card {
-  display: flex !important;
+  display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
-  padding: 1.25rem !important;
-  height: auto !important;
-  line-height: 1.3 !important;
+  gap: 0.5rem;
+  padding: 1.35rem 1rem;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 
   mat-icon {
-    font-size: 32px;
-    width: 32px;
-    height: 32px;
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
   }
 
-  small {
-    opacity: 0.75;
+  .cta-title {
+    display: block;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .cta-desc {
+    display: block;
+    font-size: 0.85rem;
     font-weight: 400;
+    color: var(--text-muted);
+    line-height: 1.4;
+    max-width: 220px;
   }
 
-  &.accent {
-    border-color: var(--accent);
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+}
+
+.cta-primary {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+
+  mat-icon,
+  .cta-title {
+    color: #fff;
+  }
+
+  .cta-desc {
+    color: rgba(255, 255, 255, 0.88);
+  }
+}
+
+.cta-secondary {
+  background: var(--surface);
+  border: 1px solid var(--accent);
+
+  mat-icon {
+    color: var(--accent);
   }
 }
 

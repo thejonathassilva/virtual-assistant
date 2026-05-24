@@ -17,6 +17,9 @@ export class Pedido {
   @Column({ type: 'uuid' })
   mesa_id!: string;
 
+  @Column({ type: 'uuid', name: 'restaurante_id' })
+  restaurante_id!: string;
+
   @Column({ type: 'uuid' })
   sessao_id!: string;
 

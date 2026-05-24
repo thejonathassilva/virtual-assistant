@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 
 export enum UserRole {
+  PLATFORM_OWNER = 'platform_owner',
   ADMIN = 'admin',
   COZINHA = 'cozinha',
   GARCOM = 'garcom',
@@ -32,6 +33,9 @@ export class Usuario {
 
   @Column({ type: 'enum', enum: UserRole })
   role!: UserRole;
+
+  @Column({ type: 'uuid', nullable: true })
+  restaurante_id?: string | null;
 
   @Column({ default: true })
   ativo!: boolean;

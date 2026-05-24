@@ -32,7 +32,7 @@ export class ToolExecutorService {
   async execute(
     toolName: ToolName,
     input: Record<string, unknown>,
-    context: { mesaId: string; sessaoId: string },
+    context: { mesaId: string; sessaoId: string; restauranteId?: string },
   ): Promise<{ status: string; content: unknown }> {
     try {
       const content = await this.runTool(toolName, input, context);
@@ -48,11 +48,11 @@ export class ToolExecutorService {
   private async runTool(
     toolName: ToolName,
     input: Record<string, unknown>,
-    context: { mesaId: string; sessaoId: string },
+    context: { mesaId: string; sessaoId: string; restauranteId?: string },
   ): Promise<unknown> {
     switch (toolName) {
       case 'consultar_cardapio':
-        return this.consultarCardapio(input);
+        return this.consultarCardapio(input, context.restauranteId);
       case 'adicionar_item_pedido':
         return this.adicionarItemPedido(input, context);
       case 'remover_item_pedido':
@@ -60,7 +60,7 @@ export class ToolExecutorService {
       case 'consultar_pedido_atual':
         return this.consultarPedidoAtual(context.mesaId);
       case 'consultar_ingredientes':
-        return this.consultarIngredientes(input);
+        return this.consultarIngredientes(input, context.restauranteId);
       case 'finalizar_pedido':
         return this.finalizarPedido(context.mesaId);
       case 'chamar_garcom':
@@ -72,15 +72,16 @@ export class ToolExecutorService {
 
   private async consultarCardapio(
     input: Record<string, unknown>,
+    restauranteId?: string,
   ): Promise<unknown> {
     const categoria = String(input.categoria ?? 'todos');
     const restricao = String(input.restricao_alimentar ?? 'nenhuma');
 
     let cardapio: unknown;
     if (categoria === 'todos') {
-      cardapio = await this.catalog.getCardapio();
+      cardapio = await this.catalog.getCardapio(restauranteId);
     } else {
-      cardapio = await this.catalog.getCardapioPorCategoria(categoria);
+      cardapio = await this.catalog.getCardapioPorCategoria(categoria, restauranteId);
     }
 
     if (restricao === 'nenhuma') {
@@ -129,7 +130,10 @@ export class ToolExecutorService {
       ? String(input.observacoes)
       : undefined;
 
-    const produto = await this.catalog.findProdutoByNome(produtoNome);
+    const produto = await this.catalog.findProdutoByNome(
+      produtoNome,
+      context.restauranteId,
+    );
     if (!produto) {
       throw new Error(`Produto "${produtoNome}" nao encontrado no cardapio`);
     }
@@ -139,18 +143,26 @@ export class ToolExecutorService {
     )) as PedidoComItens | null;
 
     if (!pedido) {
-      pedido = (await this.orders.createPedido({
-        mesa_id: context.mesaId,
-        sessao_id: context.sessaoId,
-        origem: 'assistente_virtual',
-      })) as PedidoComItens;
+      pedido = (await this.orders.createPedido(
+        {
+          mesa_id: context.mesaId,
+          sessao_id: context.sessaoId,
+          origem: 'assistente_virtual',
+          restaurante_id: context.restauranteId,
+        },
+        context.restauranteId,
+      )) as PedidoComItens;
     }
 
-    return this.orders.addItem(pedido.id, {
-      produto_id: produto.id,
-      quantidade,
-      observacoes,
-    });
+    return this.orders.addItem(
+      pedido.id,
+      {
+        produto_id: produto.id,
+        quantidade,
+        observacoes,
+      },
+      context.restauranteId,
+    );
   }
 
   private async removerItemPedido(
@@ -166,7 +178,10 @@ export class ToolExecutorService {
       throw new Error('Nao ha pedido ativo para esta mesa');
     }
 
-    const produto = await this.catalog.findProdutoByNome(produtoNome);
+    const produto = await this.catalog.findProdutoByNome(
+      produtoNome,
+      context.restauranteId,
+    );
     if (!produto) {
       throw new Error(`Produto "${produtoNome}" nao encontrado`);
     }
@@ -189,9 +204,10 @@ export class ToolExecutorService {
 
   private async consultarIngredientes(
     input: Record<string, unknown>,
+    restauranteId?: string,
   ): Promise<unknown> {
     const produtoNome = String(input.produto_nome ?? '');
-    const produto = await this.catalog.findProdutoByNome(produtoNome);
+    const produto = await this.catalog.findProdutoByNome(produtoNome, restauranteId);
     if (!produto) {
       throw new Error(`Produto "${produtoNome}" nao encontrado`);
     }

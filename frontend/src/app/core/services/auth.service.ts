@@ -51,6 +51,7 @@ export class AuthService {
 
   homeRouteForRole(role: UserRole): string {
     const map: Record<UserRole, string> = {
+      platform_owner: '/platform',
       admin: '/admin',
       cozinha: '/cozinha',
       garcom: '/garcom',

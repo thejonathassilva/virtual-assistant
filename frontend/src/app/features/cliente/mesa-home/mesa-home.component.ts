@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { setMesaRestauranteId } from '../../../core/interceptors/tenant.interceptor';
 import { MesasService } from '../../../core/services/mesas.service';
 import { Mesa } from '../../../core/models';
 import { RestaurantBrandComponent } from '../../../shared/restaurant-brand/restaurant-brand.component';
@@ -26,6 +27,9 @@ export class MesaHomeComponent implements OnInit {
     this.mesas.obter(id).subscribe({
       next: (m) => {
         this.mesa.set(m);
+        if (m.restaurante_id) {
+          setMesaRestauranteId(m.restaurante_id);
+        }
         this.loading.set(false);
       },
       error: () => this.loading.set(false),

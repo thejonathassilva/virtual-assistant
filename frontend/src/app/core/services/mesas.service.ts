@@ -25,4 +25,10 @@ export class MesasService {
   criar(numero: number) {
     return this.http.post<Mesa>(`${environment.apiUrl}/mesas`, { numero });
   }
+
+  baixarQrcode(id: string) {
+    return this.http.get(`${environment.apiUrl}/mesas/${id}/qrcode`, {
+      responseType: 'blob',
+    });
+  }
 }

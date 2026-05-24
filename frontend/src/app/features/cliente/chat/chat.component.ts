@@ -9,7 +9,9 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { setMesaRestauranteId } from '../../../core/interceptors/tenant.interceptor';
 import { ChatService } from '../../../core/services/chat.service';
+import { MesasService } from '../../../core/services/mesas.service';
 import { PedidosService } from '../../../core/services/pedidos.service';
 import { ProdutoCatalogoStore } from '../../../core/services/produto-catalogo.store';
 import { Pedido } from '../../../core/models';
@@ -33,6 +35,7 @@ interface UiMsg {
 export class ChatComponent implements OnInit, AfterViewChecked {
   private readonly route = inject(ActivatedRoute);
   private readonly chat = inject(ChatService);
+  private readonly mesas = inject(MesasService);
   private readonly pedidos = inject(PedidosService);
   private readonly catalogo = inject(ProdutoCatalogoStore);
 
@@ -48,6 +51,11 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('mesaId')!;
     this.mesaId.set(id);
+    this.mesas.obter(id).subscribe({
+      next: (m) => {
+        if (m.restaurante_id) setMesaRestauranteId(m.restaurante_id);
+      },
+    });
     this.catalogo.ensureLoaded();
     this.chat.historico(id).subscribe({
       next: (h) => {

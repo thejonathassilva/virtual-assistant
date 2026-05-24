@@ -1,0 +1,51 @@
+<div class="page">
+  <a class="back-link" routerLink="/admin">← Admin</a>
+  <header class="page-header">
+    <h2>Mesas e QR codes</h2>
+  </header>
+
+  <mat-card class="panel-card-padded nova-mesa">
+    <h3>Nova mesa</h3>
+    <form [formGroup]="form" (ngSubmit)="criar()" class="nova-mesa-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Número da mesa</mat-label>
+        <input matInput type="number" formControlName="numero" min="1" />
+      </mat-form-field>
+      <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
+        Cadastrar mesa
+      </button>
+    </form>
+  </mat-card>
+
+  @if (loading()) {
+    <div class="center"><mat-spinner /></div>
+  } @else {
+    <div class="mesa-grid">
+      @for (m of lista(); track m.id) {
+        <mat-card class="mesa-card">
+          <mat-card-header>
+            <mat-card-title>Mesa {{ m.numero }}</mat-card-title>
+            <mat-card-subtitle>{{ m.status }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            @if (qrUrls()[m.id]; as qrSrc) {
+              <img [src]="qrSrc" [alt]="'QR Mesa ' + m.numero" class="qr-img" />
+            } @else {
+              <div class="qr-loading"><mat-spinner diameter="32" /></div>
+            }
+            <p class="mesa-link">
+              <a [href]="linkMesa(m)" target="_blank" rel="noopener">{{ linkMesa(m) }}</a>
+            </p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-stroked-button type="button" (click)="baixarQr(m)">
+              <mat-icon>download</mat-icon>
+              Baixar PNG
+            </button>
+            <a mat-button [href]="linkMesa(m)" target="_blank" rel="noopener">Abrir link</a>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

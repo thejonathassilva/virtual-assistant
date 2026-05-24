@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Header,
+  Headers,
   Param,
   Post,
   Put,
@@ -25,8 +26,8 @@ export class MesasController {
   ) {}
 
   @Get()
-  findAll() {
-    return this.mesasService.findAll();
+  findAll(@Headers('x-restaurante-id') restauranteId?: string) {
+    return this.mesasService.findAll(restauranteId);
   }
 
   @Get(':id')
@@ -36,8 +37,11 @@ export class MesasController {
   }
 
   @Post()
-  create(@Body() dto: CreateMesaDto) {
-    return this.mesasService.create(dto);
+  create(
+    @Headers('x-restaurante-id') restauranteId: string,
+    @Body() dto: CreateMesaDto,
+  ) {
+    return this.mesasService.create(dto, restauranteId);
   }
 
   @Put(':id')

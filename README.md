@@ -49,6 +49,7 @@ Aguarde alguns minutos na primeira vez (build das imagens).
 
 | Perfil | E-mail | Senha |
 |--------|--------|-------|
+| Plataforma (Facilita Virtual) | platform@facilita.com | Restaurante@123 |
 | Admin | admin@restaurante.com | Restaurante@123 |
 | Cozinha | cozinha@restaurante.com | Restaurante@123 |
 | Garçom | garcom@restaurante.com | Restaurante@123 |
@@ -56,7 +57,8 @@ Aguarde alguns minutos na primeira vez (build das imagens).
 
 Acesse http://localhost:4201/login e depois:
 
-- **Admin:** `/admin` — produtos, usuários, empresa, config IA  
+- **Plataforma:** `/platform` — cadastrar restaurantes, cotas de IA, custo estimado e criar o admin inicial  
+- **Admin:** `/admin` — produtos, usuários, empresa, mesas/QR, config IA  
 - **Cozinha:** `/cozinha`  
 - **Garçom:** `/garcom`  
 - **Caixa:** `/caixa`  

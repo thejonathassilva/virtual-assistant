@@ -66,5 +66,26 @@ try {
   Fail "admin usuarios: $($_.Exception.Message)"
 }
 
+try {
+  $platformBody = '{"email":"platform@facilita.com","senha":"Restaurante@123"}'
+  $platformLogin = Invoke-RestMethod -Uri "$Base/auth/login" -Method POST -ContentType "application/json" -Body $platformBody
+  $platformHeaders = @{ Authorization = "Bearer $($platformLogin.access_token)" }
+  $restaurantes = @(Invoke-RestMethod -Uri "$Base/platform/restaurantes" -Headers $platformHeaders)
+  if ($restaurantes.Count -lt 1) { Fail "platform sem restaurantes" }
+  Ok "platform: $($restaurantes.Count) restaurante(s)"
+} catch {
+  Fail "platform: $($_.Exception.Message)"
+}
+
+try {
+  $chatPedido = Invoke-RestMethod -Uri "$Base/chat/$mesaId/mensagem" -Method POST -ContentType "application/json" -Body '{"mensagem":"quero uma batata frita crocante e um refrigerante lata"}'
+  if ($chatPedido.resposta -notmatch "Adicionei|adicionei|pedido") {
+    Fail "chat pedido sem confirmacao: $($chatPedido.resposta)"
+  }
+  Ok "chat pedido multi-item"
+} catch {
+  Fail "chat pedido: $($_.Exception.Message)"
+}
+
 Write-Host ""
 Write-Host "Smoke test concluido com sucesso." -ForegroundColor Cyan

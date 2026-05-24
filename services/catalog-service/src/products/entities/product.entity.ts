@@ -18,7 +18,10 @@ export class Product {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ unique: true })
+  @Column({ type: 'uuid', name: 'restaurante_id' })
+  restaurante_id!: string;
+
+  @Column()
   nome!: string;
 
   @Column({ type: 'text', nullable: true })

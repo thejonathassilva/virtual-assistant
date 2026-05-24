@@ -23,6 +23,12 @@ export class ProxyService {
     if (req.headers['content-type']) {
       headers['content-type'] = req.headers['content-type'] as string;
     }
+    if (req.headers['x-restaurante-id']) {
+      headers['x-restaurante-id'] = req.headers['x-restaurante-id'] as string;
+    }
+    if (req.headers['x-user-role']) {
+      headers['x-user-role'] = req.headers['x-user-role'] as string;
+    }
 
     try {
       const response = await firstValueFrom(

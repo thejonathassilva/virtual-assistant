@@ -5,6 +5,12 @@ import * as jwt from 'jsonwebtoken';
 import { isPublicRoute } from '../auth/public-routes';
 import { buildProxyEntries } from './proxy.config';
 
+interface JwtClaims {
+  sub: string;
+  role?: string;
+  restaurante_id?: string | null;
+}
+
 @Injectable()
 export class ApiProxyMiddleware implements NestMiddleware {
   private readonly entries = buildProxyEntries();
@@ -29,7 +35,15 @@ export class ApiProxyMiddleware implements NestMiddleware {
       const token = authHeader.slice(7);
       const secret = process.env.JWT_SECRET || 'dev-jwt-secret';
       try {
-        jwt.verify(token, secret);
+        const payload = jwt.verify(token, secret) as JwtClaims;
+        if (payload.role) {
+          req.headers['x-user-role'] = payload.role;
+        }
+        if (payload.restaurante_id) {
+          req.headers['x-restaurante-id'] = payload.restaurante_id;
+        } else if (payload.role === 'platform_owner') {
+          delete req.headers['x-restaurante-id'];
+        }
       } catch {
         throw new UnauthorizedException('Token JWT inválido ou expirado');
       }
@@ -47,4 +61,3 @@ export class ApiProxyMiddleware implements NestMiddleware {
     createProxyMiddleware({ ...entry.options, pathFilter: () => true })(req, res, next);
   }
 }
-

@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   Param,
   ParseUUIDPipe,
   Post,
@@ -24,14 +25,20 @@ export class PedidosController {
 
   @Post('pedidos')
   @ApiOperation({ summary: 'Criar pedido' })
-  create(@Body() dto: CreatePedidoDto) {
-    return this.pedidosService.create(dto);
+  create(
+    @Headers('x-restaurante-id') restauranteId: string,
+    @Body() dto: CreatePedidoDto,
+  ) {
+    return this.pedidosService.create(dto, restauranteId);
   }
 
   @Get('pedidos')
   @ApiOperation({ summary: 'Listar pedidos' })
-  findAll(@Query() query: ListPedidosQueryDto) {
-    return this.pedidosService.findAll(query);
+  findAll(
+    @Headers('x-restaurante-id') restauranteId: string,
+    @Query() query: ListPedidosQueryDto,
+  ) {
+    return this.pedidosService.findAll(query, restauranteId);
   }
 
   @Get('pedidos/:id')

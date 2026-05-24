@@ -171,6 +171,7 @@ services:
       AUTH_SERVICE_URL: http://auth-service:3001
       AI_SERVICE_URL: http://ai-service:3005
       CATALOG_SERVICE_URL: http://catalog-service:3002
+      TABLES_SERVICE_URL: http://tables-service:3003
       AWS_REGION: ${AWS_REGION:-us-east-1}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}

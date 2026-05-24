@@ -2,6 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
+import { DEFAULT_RESTAURANTE_ID } from '../common/tenant';
 
 @Injectable()
 export class OrdersClient {
@@ -22,23 +23,39 @@ export class OrdersClient {
     return data;
   }
 
-  async createPedido(body: {
-    mesa_id: string;
-    sessao_id: string;
-    origem: string;
-    enviar_cozinha?: boolean;
-  }): Promise<unknown> {
+  private headers(restauranteId?: string) {
+    return {
+      'x-restaurante-id': restauranteId?.trim() || DEFAULT_RESTAURANTE_ID,
+    };
+  }
+
+  async createPedido(
+    body: {
+      mesa_id: string;
+      sessao_id: string;
+      origem: string;
+      enviar_cozinha?: boolean;
+      restaurante_id?: string;
+    },
+    restauranteId?: string,
+  ): Promise<unknown> {
     const url = `${this.baseUrl}/pedidos`;
-    const { data } = await firstValueFrom(this.http.post(url, body));
+    const tid = restauranteId ?? body.restaurante_id;
+    const { data } = await firstValueFrom(
+      this.http.post(url, body, { headers: this.headers(tid) }),
+    );
     return data;
   }
 
   async addItem(
     pedidoId: string,
     body: { produto_id: string; quantidade: number; observacoes?: string },
+    restauranteId?: string,
   ): Promise<unknown> {
     const url = `${this.baseUrl}/pedidos/${pedidoId}/itens`;
-    const { data } = await firstValueFrom(this.http.post(url, body));
+    const { data } = await firstValueFrom(
+      this.http.post(url, body, { headers: this.headers(restauranteId) }),
+    );
     return data;
   }
 

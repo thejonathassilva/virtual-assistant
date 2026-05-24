@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post, Put } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UploadLogoDto } from './dto/upload-logo.dto';
 import { UpdateEmpresaDto } from './dto/update-empresa.dto';
@@ -11,19 +11,25 @@ export class EmpresaController {
 
   @Get()
   @ApiOperation({ summary: 'Dados da empresa' })
-  getEmpresa() {
-    return this.empresaService.getEmpresa();
+  getEmpresa(@Headers('x-restaurante-id') restauranteId?: string) {
+    return this.empresaService.getEmpresa(restauranteId);
   }
 
   @Put()
   @ApiOperation({ summary: 'Atualizar dados da empresa' })
-  updateEmpresa(@Body() dto: UpdateEmpresaDto) {
-    return this.empresaService.updateEmpresa(dto);
+  updateEmpresa(
+    @Headers('x-restaurante-id') restauranteId: string,
+    @Body() dto: UpdateEmpresaDto,
+  ) {
+    return this.empresaService.updateEmpresa(dto, restauranteId);
   }
 
   @Post('logo')
   @ApiOperation({ summary: 'Atualizar URL do logo' })
-  uploadLogo(@Body() dto: UploadLogoDto) {
-    return this.empresaService.updateLogo(dto.logo_url);
+  uploadLogo(
+    @Headers('x-restaurante-id') restauranteId: string,
+    @Body() dto: UploadLogoDto,
+  ) {
+    return this.empresaService.updateLogo(dto.logo_url, restauranteId);
   }
 }

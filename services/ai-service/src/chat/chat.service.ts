@@ -8,6 +8,8 @@ import { ConfigIa } from '../entities/config-ia.entity';
 import { LogConversa } from '../entities/log-conversa.entity';
 import { ConfigIaService } from '../config-ia/config-ia.service';
 import { MetricasService } from '../metricas/metricas.service';
+import { TablesClient } from '../clients/tables.client';
+import { QuotaService } from '../quota/quota.service';
 import { SessionService } from '../session/session.service';
 import { ChatMessage } from '../session/session.types';
 import { EnviarMensagemDto } from './dto/enviar-mensagem.dto';
@@ -19,6 +21,8 @@ export class ChatService {
     private readonly bedrock: BedrockService,
     private readonly configIaService: ConfigIaService,
     private readonly metricas: MetricasService,
+    private readonly quota: QuotaService,
+    private readonly tables: TablesClient,
     @InjectRepository(LogConversa)
     private readonly logRepo: Repository<LogConversa>,
   ) {}
@@ -39,10 +43,29 @@ export class ChatService {
     await this.sessionService.appendMessage(mesaId, userMsg);
 
     const updatedSession = (await this.sessionService.get(mesaId))!;
+    const restauranteId = await this.tables.resolveRestauranteId(mesaId);
+
+    try {
+      await this.quota.assertCanConsume(restauranteId);
+    } catch (err) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : 'Limite de uso da IA atingido neste mês';
+      return {
+        sessao_id: updatedSession.sessao_id,
+        mesa_id: mesaId,
+        resposta: `${msg}. Chame o garçom para continuar seu atendimento.`,
+        tool_calls: [],
+        metrics: { latency_ms: 0, input_tokens: 0, output_tokens: 0, guardrail_blocked: false },
+      };
+    }
+
     const response = await this.bedrock.converse(
       dto.mensagem,
       updatedSession,
       config,
+      { restauranteId },
     );
 
     if (response.guardrailBlocked) {
@@ -77,7 +100,7 @@ export class ChatService {
 
     await this.sessionService.save(updatedSession);
 
-    await this.metricas.recordMessageMetrics(config, response);
+    await this.metricas.recordMessageMetrics(config, response, restauranteId);
 
     return {
       sessao_id: updatedSession.sessao_id,
@@ -175,7 +198,8 @@ export class ChatService {
     await this.logRepo.save(log);
 
     const config = await this.configIaService.getConfig();
-    await this.metricas.recordSessionEnd(session, config);
+    const restauranteId = await this.tables.resolveRestauranteId(mesaId);
+    await this.metricas.recordSessionEnd(session, config, restauranteId);
 
     return {
       mesa_id: mesaId,

@@ -1,4 +1,5 @@
 export enum UserRole {
+  PLATFORM_OWNER = 'platform_owner',
   ADMIN = 'admin',
   COZINHA = 'cozinha',
   GARCOM = 'garcom',

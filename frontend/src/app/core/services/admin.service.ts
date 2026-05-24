@@ -9,6 +9,7 @@ export interface UsuarioPayload {
   role: UserRole;
   senha?: string;
   ativo?: boolean;
+  restaurante_id?: string;
 }
 
 @Injectable({ providedIn: 'root' })

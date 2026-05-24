@@ -24,15 +24,15 @@
       }
 
       <div class="cta-grid">
-        <a mat-flat-button color="primary" class="cta-card" [routerLink]="['cardapio']">
+        <a class="cta-card cta-primary" [routerLink]="['cardapio']">
           <mat-icon>menu_book</mat-icon>
-          <span>Abrir cardápio</span>
-          <small>Navegue pelos pratos com fotos</small>
+          <span class="cta-title">Abrir cardápio</span>
+          <span class="cta-desc">Navegue pelos pratos com fotos</span>
         </a>
-        <a mat-stroked-button class="cta-card accent" [routerLink]="['chat']">
+        <a class="cta-card cta-secondary" [routerLink]="['chat']">
           <mat-icon>chat</mat-icon>
-          <span>Pedir com assistente</span>
-          <small>Converse e monte seu pedido</small>
+          <span class="cta-title">Pedir com assistente</span>
+          <span class="cta-desc">Converse e monte seu pedido</span>
         </a>
       </div>
     </div>

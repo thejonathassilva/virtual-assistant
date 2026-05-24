@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, ForbiddenException, Get, Headers, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { MetricasService } from './metricas.service';
 
@@ -14,7 +14,16 @@ export class MetricasController {
     required: false,
     enum: ['hoje', 'semana', 'mes'],
   })
-  getMetricas(@Query('periodo') periodo?: string) {
-    return this.metricasService.getMetricas(periodo);
+  getMetricas(
+    @Headers('x-user-role') role: string | undefined,
+    @Headers('x-restaurante-id') restauranteId: string | undefined,
+    @Query('periodo') periodo?: string,
+  ) {
+    if (role === 'platform_owner') {
+      throw new ForbiddenException(
+        'Use o painel da plataforma para métricas consolidadas',
+      );
+    }
+    return this.metricasService.getMetricas(periodo, restauranteId);
   }
 }

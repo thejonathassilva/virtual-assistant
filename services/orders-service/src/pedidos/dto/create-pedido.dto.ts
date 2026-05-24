@@ -22,4 +22,9 @@ export class CreatePedidoDto {
   @IsOptional()
   @IsBoolean()
   enviar_cozinha?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  restaurante_id?: string;
 }

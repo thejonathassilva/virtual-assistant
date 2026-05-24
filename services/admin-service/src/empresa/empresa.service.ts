@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { DEFAULT_RESTAURANTE_ID } from '../restaurante/restaurante.service';
 import { UpdateEmpresaDto } from './dto/update-empresa.dto';
 import { Empresa } from './entities/empresa.entity';
 
@@ -24,6 +25,7 @@ const DEFAULT_EMPRESA: Partial<Empresa> = {
   historia:
     'O Duas Mãos, Uma Mesa nasceu da ideia de que a melhor comida é a que se compartilha: cada prato chega à mesa como um convite para estar presente, conversar e saborear juntos.',
   logo_url: null,
+  restaurante_id: DEFAULT_RESTAURANTE_ID,
 };
 
 @Injectable()
@@ -42,9 +44,19 @@ export class EmpresaService implements OnModuleInit {
       return;
     }
     await this.migrateLegacyBrandName();
+    await this.linkDefaultTenant();
   }
 
-  /** Atualiza seed antigo (Sabor & Cia) após rename da marca. */
+  private async linkDefaultTenant() {
+    const rows = await this.empresaRepo.find();
+    for (const e of rows) {
+      if (!e.restaurante_id) {
+        e.restaurante_id = DEFAULT_RESTAURANTE_ID;
+        await this.empresaRepo.save(e);
+      }
+    }
+  }
+
   private async migrateLegacyBrandName(): Promise<void> {
     const legacy = ['Sabor & Cia Lanchonete', 'Sabor & Cia'];
     const rows = await this.empresaRepo.find({ take: 1, order: { created_at: 'ASC' } });
@@ -57,22 +69,49 @@ export class EmpresaService implements OnModuleInit {
     await this.empresaRepo.save(empresa);
   }
 
-  async getEmpresa(): Promise<Empresa> {
-    const empresa = await this.empresaRepo.find({ take: 1, order: { created_at: 'ASC' } });
-    if (!empresa[0]) {
-      return this.empresaRepo.save(this.empresaRepo.create(DEFAULT_EMPRESA));
-    }
-    return empresa[0];
+  async seedForTenant(restauranteId: string, nome: string): Promise<Empresa> {
+    const existing = await this.empresaRepo.findOne({
+      where: { restaurante_id: restauranteId },
+    });
+    if (existing) return existing;
+    return this.empresaRepo.save(
+      this.empresaRepo.create({
+        nome,
+        restaurante_id: restauranteId,
+        missao: '',
+        visao: '',
+        valores: '',
+        endereco: '',
+        telefone: '',
+        logo_url: null,
+      }),
+    );
   }
 
-  async updateEmpresa(dto: UpdateEmpresaDto): Promise<Empresa> {
-    const current = await this.getEmpresa();
+  async getEmpresa(restauranteId?: string): Promise<Empresa> {
+    const tid = restauranteId || DEFAULT_RESTAURANTE_ID;
+    let empresa = await this.empresaRepo.findOne({
+      where: { restaurante_id: tid },
+    });
+    if (!empresa) {
+      empresa = await this.empresaRepo.findOne({
+        order: { created_at: 'ASC' },
+      });
+    }
+    if (!empresa) {
+      return this.empresaRepo.save(this.empresaRepo.create(DEFAULT_EMPRESA));
+    }
+    return empresa;
+  }
+
+  async updateEmpresa(dto: UpdateEmpresaDto, restauranteId?: string): Promise<Empresa> {
+    const current = await this.getEmpresa(restauranteId);
     Object.assign(current, dto);
     return this.empresaRepo.save(current);
   }
 
-  async updateLogo(logoUrl: string): Promise<Empresa> {
-    const current = await this.getEmpresa();
+  async updateLogo(logoUrl: string, restauranteId?: string): Promise<Empresa> {
+    const current = await this.getEmpresa(restauranteId);
     current.logo_url = logoUrl;
     return this.empresaRepo.save(current);
   }

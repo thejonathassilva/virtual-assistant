@@ -4,6 +4,8 @@ import { BedrockModule } from '../bedrock/bedrock.module';
 import { ConfigIaModule } from '../config-ia/config-ia.module';
 import { LogConversa } from '../entities/log-conversa.entity';
 import { MetricasModule } from '../metricas/metricas.module';
+import { ClientsModule } from '../clients/clients.module';
+import { QuotaModule } from '../quota/quota.module';
 import { SessionModule } from '../session/session.module';
 import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';
@@ -15,6 +17,8 @@ import { ChatService } from './chat.service';
     BedrockModule,
     ConfigIaModule,
     MetricasModule,
+    QuotaModule,
+    ClientsModule,
   ],
   controllers: [ChatController],
   providers: [ChatService],

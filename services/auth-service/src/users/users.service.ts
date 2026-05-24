@@ -6,6 +6,9 @@ import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { Usuario, UserRole } from './entities/usuario.entity';
 
+/** Alinhado ao seed do admin-service (Duas Mãos, Uma Mesa). */
+export const DEFAULT_RESTAURANTE_ID = '11111111-1111-4111-8111-111111111111';
+
 @Injectable()
 export class UsersService implements OnModuleInit {
   constructor(
@@ -15,30 +18,74 @@ export class UsersService implements OnModuleInit {
 
   async onModuleInit() {
     if (process.env.NODE_ENV === 'production') return;
-    const count = await this.repo.count();
-    if (count === 0) {
-      await this.seedDevUsers();
-    }
+    await this.seedDevUsers();
   }
 
   private async seedDevUsers() {
     const senha = await bcrypt.hash('Restaurante@123', 10);
-    const users = [
+
+    const platform = await this.repo.findOne({
+      where: { email: 'platform@facilita.com' },
+    });
+    if (!platform) {
+      await this.repo.save(
+        this.repo.create({
+          nome: 'Facilita Virtual',
+          email: 'platform@facilita.com',
+          role: UserRole.PLATFORM_OWNER,
+          senha_hash: senha,
+          ativo: true,
+          restaurante_id: null,
+        }),
+      );
+    }
+
+    const restaurantUsers = [
       { nome: 'Admin', email: 'admin@restaurante.com', role: UserRole.ADMIN },
       { nome: 'Cozinha', email: 'cozinha@restaurante.com', role: UserRole.COZINHA },
       { nome: 'Garçom', email: 'garcom@restaurante.com', role: UserRole.GARCOM },
       { nome: 'Caixa', email: 'caixa@restaurante.com', role: UserRole.CAIXA },
     ];
-    for (const u of users) {
+
+    for (const u of restaurantUsers) {
+      const existing = await this.repo.findOne({ where: { email: u.email } });
+      if (existing) {
+        if (!existing.restaurante_id) {
+          existing.restaurante_id = DEFAULT_RESTAURANTE_ID;
+          await this.repo.save(existing);
+        }
+        continue;
+      }
       await this.repo.save(
-        this.repo.create({ ...u, senha_hash: senha, ativo: true }),
+        this.repo.create({
+          ...u,
+          senha_hash: senha,
+          ativo: true,
+          restaurante_id: DEFAULT_RESTAURANTE_ID,
+        }),
       );
     }
   }
 
-  findAll() {
+  findAll(restauranteId?: string | null) {
+    const where =
+      restauranteId === undefined
+        ? {}
+        : restauranteId === null
+          ? { restaurante_id: null as unknown as string }
+          : { restaurante_id: restauranteId };
     return this.repo.find({
-      select: ['id', 'nome', 'email', 'role', 'ativo', 'created_at', 'updated_at'],
+      where,
+      select: [
+        'id',
+        'nome',
+        'email',
+        'role',
+        'ativo',
+        'restaurante_id',
+        'created_at',
+        'updated_at',
+      ],
       order: { nome: 'ASC' },
     });
   }
@@ -46,7 +93,16 @@ export class UsersService implements OnModuleInit {
   findByEmail(email: string) {
     return this.repo.findOne({
       where: { email },
-      select: ['id', 'nome', 'email', 'role', 'ativo', 'senha_hash', 'cognito_sub'],
+      select: [
+        'id',
+        'nome',
+        'email',
+        'role',
+        'ativo',
+        'senha_hash',
+        'cognito_sub',
+        'restaurante_id',
+      ],
     });
   }
 
@@ -60,7 +116,14 @@ export class UsersService implements OnModuleInit {
     const senha_hash = dto.senha
       ? await bcrypt.hash(dto.senha, 10)
       : undefined;
-    const user = this.repo.create({ ...dto, senha_hash });
+    const user = this.repo.create({
+      ...dto,
+      senha_hash,
+      restaurante_id:
+        dto.role === UserRole.PLATFORM_OWNER
+          ? null
+          : dto.restaurante_id ?? DEFAULT_RESTAURANTE_ID,
+    });
     return this.repo.save(user);
   }
 

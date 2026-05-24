@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   Param,
   Post,
   Put,
@@ -22,28 +23,41 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  findAll(@Headers('x-restaurante-id') restauranteId?: string) {
+    return this.productsService.findAll(restauranteId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findById(id);
+  findOne(
+    @Param('id') id: string,
+    @Headers('x-restaurante-id') restauranteId?: string,
+  ) {
+    return this.productsService.findById(id, restauranteId);
   }
 
   @Post()
-  create(@Body() dto: CreateProductDto) {
-    return this.productsService.create(dto);
+  create(
+    @Headers('x-restaurante-id') restauranteId: string,
+    @Body() dto: CreateProductDto,
+  ) {
+    return this.productsService.create(dto, restauranteId);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
-    return this.productsService.update(id, dto);
+  update(
+    @Param('id') id: string,
+    @Headers('x-restaurante-id') restauranteId: string,
+    @Body() dto: UpdateProductDto,
+  ) {
+    return this.productsService.update(id, dto, restauranteId);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(id);
+  remove(
+    @Param('id') id: string,
+    @Headers('x-restaurante-id') restauranteId?: string,
+  ) {
+    return this.productsService.remove(id, restauranteId);
   }
 
   @Post(':id/foto')
@@ -62,8 +76,9 @@ export class ProductsController {
   })
   uploadFoto(
     @Param('id') id: string,
+    @Headers('x-restaurante-id') restauranteId: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.productsService.uploadFoto(id, file);
+    return this.productsService.uploadFoto(id, file, restauranteId);
   }
 }

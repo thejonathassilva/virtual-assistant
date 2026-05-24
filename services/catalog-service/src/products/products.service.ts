@@ -10,10 +10,11 @@ import { MediaService } from '../media/media.service';
 import { RedisService } from '../redis/redis.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { DEFAULT_RESTAURANTE_ID, resolveRestauranteId } from '../common/tenant';
 import { CategoriaProduto, Product } from './entities/product.entity';
 
-const CACHE_ALL_KEY = 'cardapio:all';
-const CACHE_CATEGORIA_PREFIX = 'cardapio:categoria:';
+const cacheAllKey = (tid: string) => `cardapio:all:${tid}`;
+const cacheCategoriaKey = (tid: string, cat: string) => `cardapio:categoria:${tid}:${cat}`;
 
 @Injectable()
 export class ProductsService implements OnModuleInit {
@@ -26,10 +27,21 @@ export class ProductsService implements OnModuleInit {
 
   async onModuleInit() {
     await this.cleanupLegacyPhotoUrls();
+    await this.linkDefaultTenant();
     if (process.env.NODE_ENV === 'production') return;
     const count = await this.repo.count();
     if (count === 0) {
       await this.seedProdutos();
+    }
+  }
+
+  private async linkDefaultTenant() {
+    const rows = await this.repo.find();
+    for (const p of rows) {
+      if (!p.restaurante_id) {
+        p.restaurante_id = DEFAULT_RESTAURANTE_ID;
+        await this.repo.save(p);
+      }
     }
   }
 
@@ -45,7 +57,7 @@ export class ProductsService implements OnModuleInit {
       product.foto_url = undefined;
       await this.repo.save(product);
     }
-    await this.invalidateCardapioCache();
+    await this.invalidateCardapioCache(DEFAULT_RESTAURANTE_ID);
   }
 
   private async seedProdutos() {
@@ -276,32 +288,46 @@ export class ProductsService implements OnModuleInit {
     ];
 
     for (const p of produtos) {
-      await this.repo.save(this.repo.create(p));
+      await this.repo.save(
+        this.repo.create({ ...p, restaurante_id: DEFAULT_RESTAURANTE_ID }),
+      );
     }
   }
 
-  private async invalidateCardapioCache() {
-    await this.redis.del(CACHE_ALL_KEY);
-    await this.redis.delByPattern(`${CACHE_CATEGORIA_PREFIX}*`);
+  private async invalidateCardapioCache(restauranteId?: string) {
+    const tid = resolveRestauranteId(restauranteId);
+    await this.redis.del(cacheAllKey(tid));
+    await this.redis.delByPattern(`cardapio:categoria:${tid}:*`);
   }
 
-  findAll() {
-    return this.repo.find({ order: { nome: 'ASC' } });
+  findAll(restauranteId?: string) {
+    const tid = resolveRestauranteId(restauranteId);
+    return this.repo.find({
+      where: { restaurante_id: tid },
+      order: { nome: 'ASC' },
+    });
   }
 
-  async findById(id: string) {
-    const product = await this.repo.findOne({ where: { id } });
+  async findById(id: string, restauranteId?: string) {
+    const tid = resolveRestauranteId(restauranteId);
+    const product = await this.repo.findOne({
+      where: { id, restaurante_id: tid },
+    });
     if (!product) throw new NotFoundException('Produto não encontrado');
     return product;
   }
 
-  async create(dto: CreateProductDto) {
-    const exists = await this.repo.findOne({ where: { nome: dto.nome } });
+  async create(dto: CreateProductDto, restauranteId?: string) {
+    const tid = resolveRestauranteId(restauranteId);
+    const exists = await this.repo.findOne({
+      where: { nome: dto.nome, restaurante_id: tid },
+    });
     if (exists) {
       throw new ConflictException('Já existe um produto com este nome');
     }
     const product = this.repo.create({
       ...dto,
+      restaurante_id: tid,
       preco: dto.preco.toFixed(2),
       ingredientes: dto.ingredientes ?? [],
       alergenos: dto.alergenos ?? [],
@@ -310,14 +336,17 @@ export class ProductsService implements OnModuleInit {
       tempo_preparo_minutos: dto.tempo_preparo_minutos ?? 0,
     });
     const saved = await this.repo.save(product);
-    await this.invalidateCardapioCache();
+    await this.invalidateCardapioCache(tid);
     return saved;
   }
 
-  async update(id: string, dto: UpdateProductDto) {
-    const product = await this.findById(id);
+  async update(id: string, dto: UpdateProductDto, restauranteId?: string) {
+    const product = await this.findById(id, restauranteId);
+    const tid = product.restaurante_id;
     if (dto.nome && dto.nome !== product.nome) {
-      const exists = await this.repo.findOne({ where: { nome: dto.nome } });
+      const exists = await this.repo.findOne({
+        where: { nome: dto.nome, restaurante_id: tid },
+      });
       if (exists) {
         throw new ConflictException('Já existe um produto com este nome');
       }
@@ -328,36 +357,38 @@ export class ProductsService implements OnModuleInit {
     const { preco: _preco, ...rest } = dto;
     Object.assign(product, rest);
     const saved = await this.repo.save(product);
-    await this.invalidateCardapioCache();
+    await this.invalidateCardapioCache(tid);
     return saved;
   }
 
-  async remove(id: string) {
-    const product = await this.findById(id);
+  async remove(id: string, restauranteId?: string) {
+    const product = await this.findById(id, restauranteId);
     this.media.removeProductFiles(id);
     await this.repo.remove(product);
-    await this.invalidateCardapioCache();
+    await this.invalidateCardapioCache(product.restaurante_id);
     return { deleted: true, id };
   }
 
-  async uploadFoto(id: string, file: Express.Multer.File) {
-    const product = await this.findById(id);
+  async uploadFoto(id: string, file: Express.Multer.File, restauranteId?: string) {
+    const product = await this.findById(id, restauranteId);
     product.foto_url = this.media.saveProductPhoto(product, file);
     const saved = await this.repo.save(product);
-    await this.invalidateCardapioCache();
+    await this.invalidateCardapioCache(product.restaurante_id);
     return saved;
   }
 
-  findActive() {
+  findActive(restauranteId?: string) {
+    const tid = resolveRestauranteId(restauranteId);
     return this.repo.find({
-      where: { ativo: true },
+      where: { ativo: true, restaurante_id: tid },
       order: { categoria: 'ASC', nome: 'ASC' },
     });
   }
 
-  findActiveByCategoria(categoria: CategoriaProduto) {
+  findActiveByCategoria(categoria: CategoriaProduto, restauranteId?: string) {
+    const tid = resolveRestauranteId(restauranteId);
     return this.repo.find({
-      where: { ativo: true, categoria },
+      where: { ativo: true, categoria, restaurante_id: tid },
       order: { nome: 'ASC' },
     });
   }

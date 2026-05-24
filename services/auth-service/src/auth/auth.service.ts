@@ -31,6 +31,7 @@ export class AuthService {
       email: user.email,
       role: user.role,
       nome: user.nome,
+      restaurante_id: user.restaurante_id ?? null,
     };
 
     return {
@@ -41,6 +42,7 @@ export class AuthService {
         nome: user.nome,
         email: user.email,
         role: user.role,
+        restaurante_id: user.restaurante_id ?? null,
       },
     };
   }
@@ -54,6 +56,7 @@ export class AuthService {
           email: payload.email,
           role: payload.role,
           nome: payload.nome,
+          restaurante_id: payload.restaurante_id ?? null,
         }),
       };
     } catch {

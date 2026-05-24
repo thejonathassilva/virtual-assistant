@@ -1,10 +1,13 @@
 import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity('metrica_ia_diaria')
-@Unique(['data'])
+@Unique(['restaurante_id', 'data'])
 export class MetricaIaDiaria {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
+  @Column({ type: 'uuid', default: '11111111-1111-4111-8111-111111111111' })
+  restaurante_id!: string;
 
   @Column({ type: 'date' })
   data!: string;

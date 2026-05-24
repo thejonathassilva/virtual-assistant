@@ -71,6 +71,21 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'platform',
+    canActivate: [authGuard, roleGuard('platform_owner')],
+    loadComponent: () =>
+      import('./layout/shell/shell.component').then((m) => m.ShellComponent),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/platform/platform-dashboard/platform-dashboard.component').then(
+            (m) => m.PlatformDashboardComponent,
+          ),
+      },
+    ],
+  },
+  {
     path: 'admin',
     canActivate: [authGuard, roleGuard('admin')],
     loadComponent: () =>
@@ -137,6 +152,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/admin-config-ia/admin-config-ia.component').then(
             (m) => m.AdminConfigIaComponent,
+          ),
+      },
+      {
+        path: 'mesas',
+        loadComponent: () =>
+          import('./features/admin/admin-mesas/admin-mesas.component').then(
+            (m) => m.AdminMesasComponent,
           ),
       },
     ],

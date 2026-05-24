@@ -4,8 +4,13 @@ import { ConfigIa } from '../entities/config-ia.entity';
 import { ChatMessage, MesaSession } from '../session/session.types';
 import { ChatMessageRole } from '../common/enums';
 import { DEFAULT_RESTAURANT_NAME } from '../common/constants/default-config';
+import { CatalogClient } from '../clients/catalog.client';
 import { ToolExecutorService } from './tool-executor.service';
 import { ToolName } from './tool-definitions';
+
+export interface ConverseOptions {
+  restauranteId?: string;
+}
 
 export interface BedrockResponse {
   text: string;
@@ -24,6 +29,7 @@ export class BedrockService {
   constructor(
     private readonly config: ConfigService,
     private readonly toolExecutor: ToolExecutorService,
+    private readonly catalog: CatalogClient,
   ) {
     const llmProvider = (
       config.get<string>('LLM_PROVIDER') ?? 'mock'
@@ -44,6 +50,7 @@ export class BedrockService {
     userMessage: string,
     session: MesaSession,
     configIa: ConfigIa,
+    options?: ConverseOptions,
   ): Promise<BedrockResponse> {
     const start = Date.now();
 
@@ -59,7 +66,7 @@ export class BedrockService {
     }
 
     if (this.useMock) {
-      return this.mockConverse(userMessage, session, configIa, start);
+      return this.mockConverse(userMessage, session, configIa, start, options);
     }
 
     return this.realConverse(userMessage, session, configIa, start);
@@ -99,6 +106,7 @@ export class BedrockService {
     session: MesaSession,
     configIa: ConfigIa,
     start: number,
+    options?: ConverseOptions,
   ): Promise<BedrockResponse> {
     const lower = userMessage.toLowerCase();
     const toolCalls: BedrockResponse['toolCalls'] = [];
@@ -106,6 +114,7 @@ export class BedrockService {
     const context = {
       mesaId: session.mesa_id,
       sessaoId: session.sessao_id,
+      restauranteId: options?.restauranteId,
     };
 
     const isFirstMessage = session.messages.filter(
@@ -172,9 +181,55 @@ export class BedrockService {
       );
       text = this.formatCardapioResponse(result.content);
     }
+    // Intent: recomendações
+    else if (
+      /recomend|sugest|indica|popular|o que (voce |você )?acha|boa escolha|me indica/.test(
+        lower,
+      )
+    ) {
+      toolCalls.push({
+        name: 'consultar_cardapio',
+        input: { categoria: 'todos', restricao_alimentar: 'nenhuma' },
+      });
+      const result = await this.toolExecutor.execute(
+        'consultar_cardapio',
+        { categoria: 'todos', restricao_alimentar: 'nenhuma' },
+        context,
+      );
+      text = this.formatRecomendacoesResponse(result.content);
+    }
+    // Intent: iniciar pedido (sem item específico)
+    else if (this.isIniciarPedidoIntent(lower)) {
+      toolCalls.push({ name: 'consultar_pedido_atual', input: {} });
+      const pedido = await this.toolExecutor.execute(
+        'consultar_pedido_atual',
+        {},
+        context,
+      );
+      const pedidoContent = pedido.content as {
+        itens?: unknown[];
+        mensagem?: string;
+      };
+      if (pedidoContent?.itens?.length) {
+        text = this.formatPedidoResponse(pedido.content);
+      } else {
+        toolCalls.push({
+          name: 'consultar_cardapio',
+          input: { categoria: 'todos', restricao_alimentar: 'nenhuma' },
+        });
+        const cardapio = await this.toolExecutor.execute(
+          'consultar_cardapio',
+          { categoria: 'todos', restricao_alimentar: 'nenhuma' },
+          context,
+        );
+        text = this.formatIniciarPedidoResponse(cardapio.content);
+      }
+    }
     // Intent: pedido - consultar
     else if (
-      /meu pedido|pedido atual|o que pedi|conta|resumo|total/.test(lower)
+      /meu pedido|pedido atual|o que pedi|conta|resumo|total|ver (o )?pedido/.test(
+        lower,
+      )
     ) {
       toolCalls.push({ name: 'consultar_pedido_atual', input: {} });
       const result = await this.toolExecutor.execute(
@@ -239,37 +294,85 @@ export class BedrockService {
           ? `Removi "${produtoNome}" do seu pedido. Mais alguma alteracao?`
           : `Nao consegui remover: ${(result.content as { message?: string })?.message}.`;
     }
-    // Intent: pedido - adicionar
+    // Intent: estimativa de preço
     else if (
-      /quero|pedir|pedido|adiciona|coloca|me ve|me vê|uma |um |x\d|\d+/.test(
-        lower,
-      )
+      /quanto\s+(ficaria|custa|é|e|sai|sao|seria)/.test(lower) &&
+      this.looksLikeNamedProduct(lower)
     ) {
-      const produtoNome = this.extractProdutoNome(userMessage);
+      const produtos = await this.catalog.matchProdutosInMessage(
+        userMessage,
+        context.restauranteId,
+      );
+      if (produtos.length > 0) {
+        const total = produtos.reduce((s, p) => s + Number(p.preco), 0);
+        const nomes = produtos.map((p) => p.nome).join(' + ');
+        text = `Estimativa para ${nomes}: cerca de R$ ${total.toFixed(2).replace('.', ',')}. Quer que eu adicione ao pedido?`;
+      } else {
+        text =
+          'Posso estimar se voce citar os itens do cardapio. Quer ver as opcoes?';
+      }
+    }
+    // Intent: pedido - adicionar (um ou mais itens)
+    else if (this.looksLikeAddItemIntent(lower, userMessage)) {
+      const produtos = await this.catalog.matchProdutosInMessage(
+        userMessage,
+        context.restauranteId,
+      );
       const quantidade = this.extractQuantidade(userMessage);
       const observacoes = this.extractObservacoes(userMessage);
 
-      toolCalls.push({
-        name: 'adicionar_item_pedido',
-        input: {
-          produto_nome: produtoNome,
-          quantidade,
-          observacoes,
-        },
-      });
-      const result = await this.toolExecutor.execute(
-        'adicionar_item_pedido',
-        {
-          produto_nome: produtoNome,
-          quantidade,
-          observacoes,
-        },
-        context,
-      );
-      text =
-        result.status === 'success'
-          ? `Adicionei ${quantidade}x "${produtoNome}" ao seu pedido! Deseja mais alguma coisa ou posso enviar para a cozinha?`
-          : `Nao consegui adicionar: ${(result.content as { message?: string })?.message}. Quer ver o cardapio?`;
+      if (produtos.length > 0) {
+        const adicionados: string[] = [];
+        const erros: string[] = [];
+        for (const p of produtos) {
+          toolCalls.push({
+            name: 'adicionar_item_pedido',
+            input: {
+              produto_nome: p.nome,
+              quantidade,
+              observacoes,
+            },
+          });
+          const result = await this.toolExecutor.execute(
+            'adicionar_item_pedido',
+            {
+              produto_nome: p.nome,
+              quantidade,
+              observacoes,
+            },
+            context,
+          );
+          if (result.status === 'success') {
+            adicionados.push(p.nome);
+          } else {
+            erros.push(
+              (result.content as { message?: string })?.message ??
+                p.nome,
+            );
+          }
+        }
+        if (adicionados.length > 0) {
+          text = `Adicionei ao pedido: ${adicionados.join(', ')}. Deseja mais alguma coisa ou envio para a cozinha?`;
+        }
+        if (erros.length > 0) {
+          text += ` Nao consegui: ${erros.join('; ')}.`;
+        }
+      } else {
+        const produtoNome = this.extractProdutoNome(userMessage);
+        const result = await this.toolExecutor.execute(
+          'adicionar_item_pedido',
+          {
+            produto_nome: produtoNome,
+            quantidade,
+            observacoes,
+          },
+          context,
+        );
+        text =
+          result.status === 'success'
+            ? `Adicionei ${quantidade}x "${produtoNome}" ao seu pedido! Deseja mais alguma coisa ou posso enviar para a cozinha?`
+            : `Nao consegui adicionar: ${(result.content as { message?: string })?.message}. Quer ver o cardapio?`;
+      }
     } else if (!text) {
       text =
         'Posso ajudar com o cardapio, fazer seu pedido, consultar ingredientes ou chamar o garcom. O que voce precisa?';
@@ -381,15 +484,49 @@ export class BedrockService {
     }
   }
 
-  private extractProdutoNome(message: string): string {
-    const cleaned = message
-      .replace(
-        /quero|pedir|adiciona|coloca|me ve|me vê|uma|um|por favor|pfv|tira|remove|sem|o|a|de|ingredientes|alergenos/gi,
-        '',
+  private isIniciarPedidoIntent(lower: string): boolean {
+    return (
+      /fazer (um )?pedido|montar (um )?pedido|começar (um )?pedido|comecar (um )?pedido|iniciar pedido|quero pedir|vou pedir|gostaria de pedir/.test(
+        lower,
+      ) && !this.looksLikeNamedProduct(lower)
+    );
+  }
+
+  private looksLikeNamedProduct(lower: string): boolean {
+    return /burger|hamb[uú]rguer|coca|batata|nugget|pizza|salada|suco|cerveja|brownie|split/.test(
+      lower,
+    );
+  }
+
+  private looksLikeAddItemIntent(lower: string, message: string): boolean {
+    if (this.isIniciarPedidoIntent(lower)) return false;
+    if (
+      !/quero|pedir|adiciona|coloca|me ve|me vê|gostaria de pedir|\d+\s*x|x\s*\d+/.test(
+        lower,
       )
-      .replace(/\d+x?\s*/g, '')
-      .trim();
-    return cleaned || 'item';
+    ) {
+      return false;
+    }
+    if (this.looksLikeNamedProduct(lower)) return true;
+    const nome = this.extractProdutoNome(message);
+    return this.isValidProductName(nome);
+  }
+
+  private isValidProductName(name: string): boolean {
+    const n = name.toLowerCase().trim();
+    if (n.length < 3) return false;
+    if (/^(f?zer|pedid|item|um|uma|pedir|fazer)$/.test(n)) return false;
+    if (/fazer|pedido/.test(n) && n.length < 12) return false;
+    return true;
+  }
+
+  private extractProdutoNome(message: string): string {
+    let text = message;
+    const stopWords =
+      /\b(quero|pedir|adiciona|coloca|me ve|me vê|por favor|pfv|tira|remove|ingredientes|alergenos|gostaria|fazer|um|uma|uns|umas|de|do|da|dos|das|e|com|para|no|na|nos|nas|eu|voce|você)\b/gi;
+    text = text.replace(stopWords, ' ');
+    text = text.replace(/\d+x?\s*/g, '');
+    return text.replace(/\s+/g, ' ').trim() || 'item';
   }
 
   private extractQuantidade(message: string): number {
@@ -403,6 +540,26 @@ export class BedrockService {
   private extractObservacoes(message: string): string | undefined {
     const match = message.match(/sem\s+[\w\s]+|bem\s+passado|mal\s+passado|extra/gi);
     return match?.[0];
+  }
+
+  private formatRecomendacoesResponse(content: unknown): string {
+    if (!Array.isArray(content) || content.length === 0) {
+      return 'No momento nao tenho sugestoes no cardapio. Quer ver todas as opcoes?';
+    }
+    const items = content as Array<{ nome: string; preco: string; tags?: string[] }>;
+    const picks = items.slice(0, 4);
+    const lines = picks.map((p) => `- **${p.nome}** (R$ ${p.preco})`);
+    const exemplo = picks[0]?.nome ?? 'X-Burger';
+    return `Separei algumas sugestoes para voce:\n${lines.join('\n')}\n\nQuer pedir alguma delas? Diga por exemplo: "quero um ${exemplo}".`;
+  }
+
+  private formatIniciarPedidoResponse(content: unknown): string {
+    if (!Array.isArray(content) || content.length === 0) {
+      return 'Vamos montar seu pedido! Diga o que deseja, por exemplo: "quero um X-Burger e uma coca".';
+    }
+    const items = content as Array<{ nome: string; preco: string }>;
+    const lines = items.slice(0, 5).map((p) => `- ${p.nome}: R$ ${p.preco}`);
+    return `Otimo! Seu pedido esta vazio. Alguns destaques do cardapio:\n${lines.join('\n')}\n\nO que voce gostaria de pedir?`;
   }
 
   private formatCardapioResponse(content: unknown): string {

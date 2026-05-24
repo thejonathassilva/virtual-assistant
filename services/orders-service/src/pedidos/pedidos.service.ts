@@ -12,6 +12,7 @@ import { ItemPedido } from '../entities/item-pedido.entity';
 import { Pedido } from '../entities/pedido.entity';
 import { AddItemPedidoDto } from './dto/add-item-pedido.dto';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
+import { resolveRestauranteId } from '../common/tenant';
 import { ListPedidosQueryDto } from './dto/list-pedidos-query.dto';
 
 const STATUS_FINAIS = [PedidoStatus.PAGO, PedidoStatus.CANCELADO];
@@ -27,7 +28,8 @@ export class PedidosService {
     private readonly realtime: RealtimeClient,
   ) {}
 
-  async create(dto: CreatePedidoDto): Promise<Pedido> {
+  async create(dto: CreatePedidoDto, restauranteId?: string): Promise<Pedido> {
+    const tid = resolveRestauranteId(restauranteId ?? dto.restaurante_id);
     const existente = await this.findPedidoAtualByMesa(dto.mesa_id);
     if (existente) {
       throw new BadRequestException(
@@ -38,6 +40,7 @@ export class PedidosService {
     const pedido = this.pedidoRepo.create({
       mesa_id: dto.mesa_id,
       sessao_id: dto.sessao_id,
+      restaurante_id: tid,
       origem: dto.origem,
       status: PedidoStatus.ABERTO,
       valor_total: '0',
@@ -53,8 +56,12 @@ export class PedidosService {
     return this.findOne(salvo.id);
   }
 
-  async findAll(query: ListPedidosQueryDto): Promise<Pedido[]> {
+  async findAll(
+    query: ListPedidosQueryDto,
+    restauranteId?: string,
+  ): Promise<Pedido[]> {
     const where: Record<string, unknown> = {};
+    if (restauranteId) where.restaurante_id = resolveRestauranteId(restauranteId);
     if (query.mesa_id) where.mesa_id = query.mesa_id;
     if (query.status) where.status = query.status;
 

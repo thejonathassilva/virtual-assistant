@@ -17,6 +17,12 @@ export function createProxyOptions(
         if (req.headers.authorization) {
           proxyReq.setHeader('authorization', req.headers.authorization);
         }
+        if (req.headers['x-restaurante-id']) {
+          proxyReq.setHeader('x-restaurante-id', req.headers['x-restaurante-id'] as string);
+        }
+        if (req.headers['x-user-role']) {
+          proxyReq.setHeader('x-user-role', req.headers['x-user-role'] as string);
+        }
       },
     },
   };
@@ -52,6 +58,10 @@ export function buildProxyEntries(): ProxyEntry[] {
     {
       filter: (pathname) => pathname.startsWith('/api/admin'),
       options: createProxyOptions(admin, { '^/api/admin': '' }),
+    },
+    {
+      filter: (pathname) => pathname.startsWith('/api/platform'),
+      options: createProxyOptions(admin, { '^/api/platform': '/platform' }),
     },
     {
       filter: (pathname) => pathname === '/api/empresa',
