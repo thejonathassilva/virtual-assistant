@@ -56,9 +56,11 @@ Modelo alvo para SaaS do case:
 **Próximo (multi-tenant):**
 - [x] Isolar catálogo, mesas e pedidos por `restaurante_id`
 - [x] Onboarding: empresa + 5 mesas ao criar restaurante
-- [ ] Renovação automática da cota mensal (`quota_renovacao_em`)
-- [ ] Métricas IA agregadas no painel plataforma (gráfico 7 dias por tenant)
-- [ ] Subdomínio ou slug na URL do cliente (`/r/{slug}/mesa/...`)
+- [x] Renovação automática da cota mensal (`quota_renovacao_em`)
+- [x] Métricas IA agregadas no painel plataforma (gráfico 7 dias por tenant)
+- [x] Subdomínio ou slug na URL do cliente (`/r/{slug}/mesa/...`)
+- [x] Wizard de onboarding — empresa → produtos → mesas no admin do restaurante
+- [x] Clonar cardápio modelo ao criar tenant
 
 ## Nuvem (quando necessário)
 

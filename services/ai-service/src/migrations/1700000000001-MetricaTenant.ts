@@ -7,7 +7,17 @@ export class MetricaTenant1700000000001 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      ALTER TABLE "metrica_ia_diaria" ADD COLUMN IF NOT EXISTS "restaurante_id" uuid NOT NULL DEFAULT '${DEFAULT_ID}'
+      ALTER TABLE "metrica_ia_diaria" ADD COLUMN IF NOT EXISTS "restaurante_id" uuid
+    `);
+    await queryRunner.query(`
+      UPDATE "metrica_ia_diaria" SET "restaurante_id" = '${DEFAULT_ID}'::uuid
+      WHERE "restaurante_id" IS NULL
+    `);
+    await queryRunner.query(`
+      ALTER TABLE "metrica_ia_diaria" ALTER COLUMN "restaurante_id" SET NOT NULL
+    `);
+    await queryRunner.query(`
+      ALTER TABLE "metrica_ia_diaria" ALTER COLUMN "restaurante_id" SET DEFAULT '${DEFAULT_ID}'::uuid
     `);
     await queryRunner.query(`
       ALTER TABLE "metrica_ia_diaria" DROP CONSTRAINT IF EXISTS "UQ_metrica_ia_diaria_data"

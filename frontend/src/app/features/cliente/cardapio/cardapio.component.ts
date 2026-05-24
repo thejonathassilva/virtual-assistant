@@ -1,5 +1,7 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { PublicService } from '../../../core/services/public.service';
+import { TenantContextService } from '../../../core/services/tenant-context.service';
 import { CatalogService } from '../../../core/services/catalog.service';
 import { Produto } from '../../../core/models';
 import { MATERIAL_IMPORTS } from '../../../shared/material';
@@ -25,6 +27,8 @@ const CATEGORIAS = [
 export class CardapioComponent implements OnInit {
   private readonly catalog = inject(CatalogService);
   private readonly route = inject(ActivatedRoute);
+  private readonly publicApi = inject(PublicService);
+  readonly tenant = inject(TenantContextService);
 
   produtos = signal<Produto[]>([]);
   loading = signal(true);
@@ -46,7 +50,17 @@ export class CardapioComponent implements OnInit {
 
   ngOnInit(): void {
     this.mesaId.set(this.route.snapshot.paramMap.get('mesaId')!);
+    const slug = this.route.parent?.snapshot.paramMap.get('slug');
+    if (slug) {
+      this.publicApi.getRestauranteBySlug(slug).subscribe({
+        next: (r) => this.tenant.setTenant(r.id, r.slug),
+      });
+    }
     this.carregar();
+  }
+
+  mesaLink(): string[] {
+    return this.tenant.mesaPath(this.mesaId());
   }
 
   carregar(): void {

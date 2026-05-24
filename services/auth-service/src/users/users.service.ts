@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
@@ -112,6 +117,25 @@ export class UsersService implements OnModuleInit {
     return user;
   }
 
+  async findAdminByRestaurante(restauranteId: string) {
+    const rows = await this.repo.find({
+      where: { restaurante_id: restauranteId, role: UserRole.ADMIN, ativo: true },
+      select: [
+        'id',
+        'nome',
+        'email',
+        'role',
+        'ativo',
+        'restaurante_id',
+        'created_at',
+        'updated_at',
+      ],
+      order: { created_at: 'ASC' },
+      take: 1,
+    });
+    return rows[0] ?? null;
+  }
+
   async create(dto: CreateUsuarioDto) {
     const senha_hash = dto.senha
       ? await bcrypt.hash(dto.senha, 10)
@@ -136,6 +160,32 @@ export class UsersService implements OnModuleInit {
     }
     Object.assign(user, dto);
     return this.repo.save(user);
+  }
+
+  async updateAuthorized(
+    id: string,
+    dto: UpdateUsuarioDto,
+    ctx: { role?: string; restauranteId?: string },
+  ) {
+    const user = await this.findById(id);
+    if (ctx.role === UserRole.PLATFORM_OWNER) {
+      if (user.role === UserRole.PLATFORM_OWNER) {
+        throw new ForbiddenException('Não é permitido alterar platform_owner');
+      }
+      if (dto.role === UserRole.PLATFORM_OWNER) {
+        throw new ForbiddenException('Perfil não permitido');
+      }
+    } else {
+      if (!ctx.restauranteId || user.restaurante_id !== ctx.restauranteId) {
+        throw new ForbiddenException('Usuário fora do tenant');
+      }
+      if (dto.role === UserRole.PLATFORM_OWNER) {
+        throw new ForbiddenException('Perfil não permitido');
+      }
+    }
+    const saved = await this.update(id, dto);
+    const { senha_hash: _, cognito_sub: __, ...safe } = saved;
+    return safe;
   }
 
   async deactivate(id: string) {

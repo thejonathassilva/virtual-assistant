@@ -16,6 +16,40 @@ export interface CreateRestaurantePayload {
   slug: string;
   token_quota_mensal?: number;
   quota_ilimitada?: boolean;
+  clonar_cardapio_modelo?: boolean;
+}
+
+export interface MetricaIaDia {
+  data: string;
+  total_conversas: number;
+  pedidos_completados_ia: number;
+  fallbacks_garcom: number;
+  tokens_consumidos_input: number;
+  tokens_consumidos_output: number;
+  custo_estimado_usd: number;
+}
+
+export interface PlatformMetricasTenant {
+  restaurante_id: string;
+  periodo: string;
+  metricas: MetricaIaDia[];
+  resumo: {
+    total_conversas: number;
+    pedidos_completados_ia: number;
+    fallbacks_garcom: number;
+    tokens_total: number;
+    custo_estimado_brl: number;
+  };
+}
+
+export interface PlatformMetricasResponse {
+  periodo: string;
+  tenants: PlatformMetricasTenant[];
+  totais: {
+    total_conversas: number;
+    tokens_total: number;
+    custo_estimado_brl: number;
+  };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -36,8 +70,17 @@ export class PlatformService {
     return this.http.post<RestauranteTenant>(this.base, body);
   }
 
-  listarUsuarios() {
-    return this.http.get<Usuario[]>(`${environment.apiUrl}/admin/usuarios`);
+  getMetricas(periodo = 'semana', restauranteId?: string) {
+    const params: Record<string, string> = { periodo };
+    if (restauranteId) params['restaurante_id'] = restauranteId;
+    return this.http.get<PlatformMetricasResponse>(
+      `${environment.apiUrl}/platform/metricas-ia`,
+      { params },
+    );
+  }
+
+  getAdminRestaurante(restauranteId: string) {
+    return this.http.get<Usuario | null>(`${this.base}/${restauranteId}/admin`);
   }
 
   criarAdminRestaurante(
@@ -50,5 +93,12 @@ export class PlatformService {
       restaurante_id: restauranteId,
       ativo: true,
     });
+  }
+
+  atualizarAdminUsuario(
+    id: string,
+    body: { nome?: string; email?: string; senha?: string },
+  ) {
+    return this.http.put<Usuario>(`${environment.apiUrl}/admin/usuarios/${id}`, body);
   }
 }

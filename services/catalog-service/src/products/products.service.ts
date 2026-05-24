@@ -392,4 +392,46 @@ export class ProductsService implements OnModuleInit {
       order: { nome: 'ASC' },
     });
   }
+
+  /** Copia produtos ativos do tenant modelo (Duas Mãos) para um novo restaurante. */
+  async cloneFromTemplate(targetRestauranteId: string) {
+    const targetId = resolveRestauranteId(targetRestauranteId);
+    const existing = await this.repo.count({
+      where: { restaurante_id: targetId },
+    });
+    if (existing > 0) {
+      return { clonados: 0, mensagem: 'Restaurante já possui produtos no catálogo' };
+    }
+
+    const source = await this.repo.find({
+      where: { restaurante_id: DEFAULT_RESTAURANTE_ID, ativo: true },
+      order: { nome: 'ASC' },
+    });
+
+    let clonados = 0;
+    for (const p of source) {
+      await this.repo.save(
+        this.repo.create({
+          restaurante_id: targetId,
+          nome: p.nome,
+          descricao: p.descricao,
+          preco: p.preco,
+          categoria: p.categoria,
+          ingredientes: [...(p.ingredientes ?? [])],
+          alergenos: [...(p.alergenos ?? [])],
+          tags: [...(p.tags ?? [])],
+          foto_url: p.foto_url,
+          tempo_preparo_minutos: p.tempo_preparo_minutos,
+          ativo: p.ativo,
+        }),
+      );
+      clonados += 1;
+    }
+
+    await this.invalidateCardapioCache(targetId);
+    return {
+      clonados,
+      mensagem: `${clonados} produto(s) copiados do cardápio modelo`,
+    };
+  }
 }

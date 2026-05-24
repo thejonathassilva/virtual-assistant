@@ -12,6 +12,12 @@ export interface UsuarioPayload {
   restaurante_id?: string;
 }
 
+export interface OnboardingStatus {
+  steps: { empresa: boolean; produtos: boolean; mesas: boolean };
+  counts: { produtos: number; mesas: number };
+  complete: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   constructor(private readonly http: HttpClient) {}
@@ -22,6 +28,10 @@ export class AdminService {
 
   updateEmpresa(body: Partial<Empresa>) {
     return this.http.put<Empresa>(`${environment.apiUrl}/admin/empresa`, body);
+  }
+
+  getOnboardingStatus() {
+    return this.http.get<OnboardingStatus>(`${environment.apiUrl}/onboarding/status`);
   }
 
   getConfigIa() {

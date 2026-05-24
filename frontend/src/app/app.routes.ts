@@ -2,6 +2,23 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
 
+const clienteMesaRoutes = [
+  {
+    path: '',
+    loadComponent: () =>
+      import('./features/cliente/mesa-home/mesa-home.component').then((m) => m.MesaHomeComponent),
+  },
+  {
+    path: 'cardapio',
+    loadComponent: () =>
+      import('./features/cliente/cardapio/cardapio.component').then((m) => m.CardapioComponent),
+  },
+  {
+    path: 'chat',
+    loadComponent: () => import('./features/cliente/chat/chat.component').then((m) => m.ChatComponent),
+  },
+];
+
 export const routes: Routes = [
   {
     path: '',
@@ -12,18 +29,29 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login.component').then((m) => m.LoginComponent),
   },
   {
+    path: 'r/:slug/mesa/:mesaId',
+    children: clienteMesaRoutes,
+  },
+  {
     path: 'mesa/:mesaId',
     loadComponent: () =>
-      import('./features/cliente/mesa-home/mesa-home.component').then((m) => m.MesaHomeComponent),
+      import('./features/cliente/mesa-legacy-redirect/mesa-legacy-redirect.component').then(
+        (m) => m.MesaLegacyRedirectComponent,
+      ),
   },
   {
     path: 'mesa/:mesaId/cardapio',
     loadComponent: () =>
-      import('./features/cliente/cardapio/cardapio.component').then((m) => m.CardapioComponent),
+      import('./features/cliente/mesa-legacy-redirect/mesa-legacy-redirect.component').then(
+        (m) => m.MesaLegacyRedirectComponent,
+      ),
   },
   {
     path: 'mesa/:mesaId/chat',
-    loadComponent: () => import('./features/cliente/chat/chat.component').then((m) => m.ChatComponent),
+    loadComponent: () =>
+      import('./features/cliente/mesa-legacy-redirect/mesa-legacy-redirect.component').then(
+        (m) => m.MesaLegacyRedirectComponent,
+      ),
   },
   {
     path: 'cozinha',
@@ -96,6 +124,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/admin-dashboard/admin-dashboard.component').then(
             (m) => m.AdminDashboardComponent,
+          ),
+      },
+      {
+        path: 'onboarding',
+        loadComponent: () =>
+          import('./features/admin/admin-onboarding/admin-onboarding.component').then(
+            (m) => m.AdminOnboardingComponent,
           ),
       },
       {

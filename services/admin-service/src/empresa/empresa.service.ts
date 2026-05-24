@@ -1,7 +1,8 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { DEFAULT_RESTAURANTE_ID } from '../restaurante/restaurante.service';
+import { DEFAULT_RESTAURANTE_ID } from '../common/tenant.constants';
+import { Restaurante } from '../restaurante/entities/restaurante.entity';
 import { UpdateEmpresaDto } from './dto/update-empresa.dto';
 import { Empresa } from './entities/empresa.entity';
 
@@ -33,6 +34,8 @@ export class EmpresaService implements OnModuleInit {
   constructor(
     @InjectRepository(Empresa)
     private readonly empresaRepo: Repository<Empresa>,
+    @InjectRepository(Restaurante)
+    private readonly restauranteRepo: Repository<Restaurante>,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -99,9 +102,18 @@ export class EmpresaService implements OnModuleInit {
       });
     }
     if (!empresa) {
-      return this.empresaRepo.save(this.empresaRepo.create(DEFAULT_EMPRESA));
+      const created = await this.empresaRepo.save(
+        this.empresaRepo.create(DEFAULT_EMPRESA),
+      );
+      return this.withSlug(created);
     }
-    return empresa;
+    return this.withSlug(empresa);
+  }
+
+  private async withSlug(empresa: Empresa): Promise<Empresa & { restaurante_slug?: string }> {
+    const tid = empresa.restaurante_id || DEFAULT_RESTAURANTE_ID;
+    const r = await this.restauranteRepo.findOne({ where: { id: tid } });
+    return { ...empresa, restaurante_slug: r?.slug ?? 'duas-maos-uma-mesa' };
   }
 
   async updateEmpresa(dto: UpdateEmpresaDto, restauranteId?: string): Promise<Empresa> {

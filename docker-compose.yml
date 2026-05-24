@@ -1,5 +1,11 @@
 # Arquitetura LOCAL (padrão). Sem AWS/GCP/Azure obrigatório.
 # Nuvem futura: DEPLOY_TARGET=aws|gcp|azure — ver docs/cloud-providers.md e env/cloud/*.env.example
+
+# Evita TypeORM synchronize em DBs com dados legados; aplica migrations versionadas.
+x-typeorm-migrations: &typeorm-migrations
+  TYPEORM_SYNC: "false"
+  TYPEORM_RUN_MIGRATIONS: "true"
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -31,6 +37,7 @@ services:
       context: ./services/auth-service
       dockerfile: Dockerfile
     environment:
+      <<: *typeorm-migrations
       PORT: 3001
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/restaurante_auth
       JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret}
@@ -51,6 +58,7 @@ services:
       context: ./services/catalog-service
       dockerfile: Dockerfile
     environment:
+      <<: *typeorm-migrations
       PORT: 3002
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/restaurante_catalog
       REDIS_URL: redis://redis:6379
@@ -74,6 +82,7 @@ services:
       context: ./services/tables-service
       dockerfile: Dockerfile
     environment:
+      <<: *typeorm-migrations
       PORT: 3003
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/restaurante_tables
       APP_URL: ${APP_URL:-http://localhost:4201}
@@ -92,6 +101,7 @@ services:
       context: ./services/orders-service
       dockerfile: Dockerfile
     environment:
+      <<: *typeorm-migrations
       PORT: 3004
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/restaurante_orders
       CATALOG_SERVICE_URL: http://catalog-service:3002
@@ -114,6 +124,7 @@ services:
       context: ./services/ai-service
       dockerfile: Dockerfile
     environment:
+      <<: *typeorm-migrations
       PORT: 3005
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/restaurante_ai
       REDIS_URL: redis://redis:6379
@@ -166,12 +177,14 @@ services:
       context: ./services/admin-service
       dockerfile: Dockerfile
     environment:
+      <<: *typeorm-migrations
       PORT: 3007
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/restaurante_admin
       AUTH_SERVICE_URL: http://auth-service:3001
       AI_SERVICE_URL: http://ai-service:3005
       CATALOG_SERVICE_URL: http://catalog-service:3002
       TABLES_SERVICE_URL: http://tables-service:3003
+      QUOTA_RENEWAL_CHECK_HOURS: ${QUOTA_RENEWAL_CHECK_HOURS:-24}
       AWS_REGION: ${AWS_REGION:-us-east-1}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}

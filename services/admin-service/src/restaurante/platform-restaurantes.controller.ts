@@ -31,6 +31,13 @@ export class PlatformRestaurantesController {
     return this.restaurantes.findAll();
   }
 
+  @Get(':id/admin')
+  @ApiOperation({ summary: 'Administrador principal do restaurante' })
+  getAdmin(@Headers('x-user-role') role: string, @Param('id') id: string) {
+    this.assertPlatform(role);
+    return this.restaurantes.findAdminUsuario(id, role);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Detalhe do restaurante' })
   get(@Headers('x-user-role') role: string, @Param('id') id: string) {

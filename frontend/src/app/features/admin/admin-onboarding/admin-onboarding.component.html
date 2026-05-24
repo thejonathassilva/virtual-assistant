@@ -1,0 +1,60 @@
+<div class="page">
+  <h2>Configurar seu restaurante</h2>
+  <p class="subtitle">Complete os passos para começar a operar com o assistente virtual.</p>
+
+  <mat-stepper [linear]="false" [selectedIndex]="step()">
+    <mat-step label="Empresa" [completed]="status()?.steps?.empresa ?? false">
+      <form [formGroup]="empresaForm" (ngSubmit)="salvarEmpresa()">
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Endereço</mat-label>
+          <input matInput formControlName="endereco" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Telefone</mat-label>
+          <input matInput formControlName="telefone" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Missão</mat-label>
+          <textarea matInput rows="2" formControlName="missao"></textarea>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>História (opcional)</mat-label>
+          <textarea matInput rows="2" formControlName="historia"></textarea>
+        </mat-form-field>
+        <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+          Salvar e continuar
+        </button>
+      </form>
+    </mat-step>
+
+    <mat-step label="Cardápio" [completed]="status()?.steps?.produtos ?? false">
+      <p>
+        Você tem <strong>{{ produtoCount() }}</strong> produto(s) no cardápio.
+        @if (produtoCount() === 0) {
+          Revise ou cadastre itens antes de abrir para os clientes.
+        }
+      </p>
+      <a mat-stroked-button routerLink="/admin/produtos">Gerenciar produtos</a>
+      <button mat-button type="button" (click)="refresh()">Atualizar contagem</button>
+      <div class="step-actions">
+        <button mat-button type="button" (click)="step.set(0)">Voltar</button>
+        <button mat-flat-button color="primary" type="button" (click)="step.set(2)">
+          Continuar
+        </button>
+      </div>
+    </mat-step>
+
+    <mat-step label="Mesas / QR" [completed]="status()?.steps?.mesas ?? false">
+      <p>
+        <strong>{{ mesaCount() }}</strong> mesa(s) cadastrada(s). Baixe os QR codes e cole nas mesas.
+      </p>
+      <a mat-stroked-button routerLink="/admin/mesas">Ver mesas e QR</a>
+      <div class="step-actions">
+        <button mat-button type="button" (click)="step.set(1)">Voltar</button>
+        <button mat-flat-button color="primary" type="button" (click)="concluir()">
+          Concluir onboarding
+        </button>
+      </div>
+    </mat-step>
+  </mat-stepper>
+</div>

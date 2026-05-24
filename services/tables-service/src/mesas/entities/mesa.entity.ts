@@ -24,6 +24,9 @@ export class Mesa {
   @Column({ type: 'uuid', name: 'restaurante_id' })
   restaurante_id!: string;
 
+  @Column({ type: 'varchar', length: 120, nullable: true })
+  restaurante_slug?: string | null;
+
   @Column()
   numero!: number;
 

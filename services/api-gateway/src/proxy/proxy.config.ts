@@ -64,6 +64,14 @@ export function buildProxyEntries(): ProxyEntry[] {
       options: createProxyOptions(admin, { '^/api/platform': '/platform' }),
     },
     {
+      filter: (pathname) => pathname.startsWith('/api/public'),
+      options: createProxyOptions(admin, { '^/api/public': '/public' }),
+    },
+    {
+      filter: (pathname) => pathname.startsWith('/api/onboarding'),
+      options: createProxyOptions(admin, { '^/api/onboarding': '/onboarding' }),
+    },
+    {
       filter: (pathname) => pathname === '/api/empresa',
       options: createProxyOptions(admin, { '^/api/empresa': '/empresa' }),
     },

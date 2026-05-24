@@ -53,6 +53,7 @@ export interface Mesa {
   numero: number;
   status: string;
   restaurante_id?: string;
+  restaurante_slug?: string | null;
   sessao_ativa_id?: string | null;
   qr_code_url?: string;
 }
@@ -104,8 +105,10 @@ export interface Usuario {
 
 export interface Empresa {
   id: string;
+  restaurante_slug?: string;
   nome: string;
   missao?: string;
+  historia?: string;
   visao?: string;
   valores?: string;
   endereco?: string;

@@ -9,7 +9,8 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { setMesaRestauranteId } from '../../../core/interceptors/tenant.interceptor';
+import { PublicService } from '../../../core/services/public.service';
+import { TenantContextService } from '../../../core/services/tenant-context.service';
 import { ChatService } from '../../../core/services/chat.service';
 import { MesasService } from '../../../core/services/mesas.service';
 import { PedidosService } from '../../../core/services/pedidos.service';
@@ -36,6 +37,8 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   private readonly route = inject(ActivatedRoute);
   private readonly chat = inject(ChatService);
   private readonly mesas = inject(MesasService);
+  private readonly publicApi = inject(PublicService);
+  readonly tenant = inject(TenantContextService);
   private readonly pedidos = inject(PedidosService);
   private readonly catalogo = inject(ProdutoCatalogoStore);
 
@@ -51,11 +54,20 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('mesaId')!;
     this.mesaId.set(id);
-    this.mesas.obter(id).subscribe({
-      next: (m) => {
-        if (m.restaurante_id) setMesaRestauranteId(m.restaurante_id);
-      },
-    });
+    const slug = this.route.parent?.snapshot.paramMap.get('slug');
+    if (slug) {
+      this.publicApi.getRestauranteBySlug(slug).subscribe({
+        next: (r) => this.tenant.setTenant(r.id, r.slug),
+      });
+    } else {
+      this.mesas.obter(id).subscribe({
+        next: (m) => {
+          if (m.restaurante_id) {
+            this.tenant.setTenant(m.restaurante_id, m.restaurante_slug ?? undefined);
+          }
+        },
+      });
+    }
     this.catalogo.ensureLoaded();
     this.chat.historico(id).subscribe({
       next: (h) => {

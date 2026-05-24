@@ -33,6 +33,10 @@ export function isPublicRoute(method: string, path: string): boolean {
     return true;
   }
 
+  if (method === 'GET' && /^\/api\/public\/restaurantes\/[^/]+$/.test(normalized)) {
+    return true;
+  }
+
   if (normalized.startsWith('/api/chat')) {
     return true;
   }

@@ -31,22 +31,39 @@ export class MesasService implements OnModuleInit {
     for (const m of rows) {
       if (!m.restaurante_id) {
         m.restaurante_id = DEFAULT_RESTAURANTE_ID;
-        await this.repo.save(m);
       }
+      if (!m.restaurante_slug) {
+        m.restaurante_slug = 'duas-maos-uma-mesa';
+      }
+      await this.repo.save(this.applyQrUrl(m, m.restaurante_slug));
     }
   }
 
-  private mesaUrl(id: string): string {
+  private mesaUrl(id: string, slug?: string | null): string {
     const appUrl = this.config.get<string>('APP_URL', 'http://localhost:4201');
-    return `${appUrl.replace(/\/$/, '')}/mesa/${id}`;
+    const base = appUrl.replace(/\/$/, '');
+    if (slug?.trim()) {
+      return `${base}/r/${slug.trim()}/mesa/${id}`;
+    }
+    return `${base}/mesa/${id}`;
+  }
+
+  private applyQrUrl(mesa: Mesa, slug?: string | null): Mesa {
+    mesa.qr_code_url = this.mesaUrl(mesa.id, slug ?? mesa.restaurante_slug);
+    return mesa;
   }
 
   private async seedMesas() {
     await this.seedMesasForTenant(DEFAULT_RESTAURANTE_ID, 10);
   }
 
-  async seedMesasForTenant(restauranteId: string, quantidade = 5) {
+  async seedMesasForTenant(
+    restauranteId: string,
+    quantidade = 5,
+    restauranteSlug?: string,
+  ) {
     const tid = resolveRestauranteId(restauranteId);
+    const slug = restauranteSlug?.trim() || undefined;
     const max = await this.repo
       .createQueryBuilder('m')
       .select('MAX(m.numero)', 'max')
@@ -60,10 +77,10 @@ export class MesasService implements OnModuleInit {
         numero,
         status: MesaStatus.LIVRE,
         restaurante_id: tid,
+        restaurante_slug: slug,
       });
       const saved = await this.repo.save(mesa);
-      saved.qr_code_url = this.mesaUrl(saved.id);
-      criadas.push(await this.repo.save(saved));
+      criadas.push(await this.repo.save(this.applyQrUrl(saved, slug)));
     }
     return criadas;
   }
@@ -88,8 +105,13 @@ export class MesasService implements OnModuleInit {
     return mesa;
   }
 
-  async create(dto: CreateMesaDto, restauranteId?: string) {
+  async create(
+    dto: CreateMesaDto,
+    restauranteId?: string,
+    restauranteSlug?: string,
+  ) {
     const tid = resolveRestauranteId(restauranteId);
+    const slug = restauranteSlug?.trim() || dto.restaurante_slug?.trim();
     const clash = await this.repo.findOne({
       where: { numero: dto.numero, restaurante_id: tid },
     });
@@ -100,10 +122,10 @@ export class MesasService implements OnModuleInit {
       numero: dto.numero,
       status: dto.status ?? MesaStatus.LIVRE,
       restaurante_id: tid,
+      restaurante_slug: slug,
     });
     const saved = await this.repo.save(mesa);
-    saved.qr_code_url = this.mesaUrl(saved.id);
-    return this.repo.save(saved);
+    return this.repo.save(this.applyQrUrl(saved, slug));
   }
 
   async update(id: string, dto: UpdateMesaDto) {
@@ -119,12 +141,23 @@ export class MesasService implements OnModuleInit {
   }
 
   async generateQrCode(id: string): Promise<Buffer> {
-    await this.findById(id);
-    const url = this.mesaUrl(id);
+    const mesa = await this.findById(id);
+    const url = this.mesaUrl(mesa.id, mesa.restaurante_slug);
     return QRCode.toBuffer(url, { type: 'png', margin: 2 });
   }
 
-  getQrTargetUrl(id: string): string {
-    return this.mesaUrl(id);
+  async getQrTargetUrl(id: string): Promise<string> {
+    const mesa = await this.findById(id);
+    return this.mesaUrl(mesa.id, mesa.restaurante_slug);
+  }
+
+  async refreshQrUrlsForTenant(restauranteId: string, slug: string) {
+    const mesas = await this.repo.find({
+      where: { restaurante_id: restauranteId },
+    });
+    for (const m of mesas) {
+      m.restaurante_slug = slug;
+      await this.repo.save(this.applyQrUrl(m, slug));
+    }
   }
 }

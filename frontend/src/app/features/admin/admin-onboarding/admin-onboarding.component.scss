@@ -1,0 +1,19 @@
+.subtitle {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.full {
+  width: 100%;
+  display: block;
+}
+
+.step-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+mat-step {
+  padding: 1rem 0;
+}

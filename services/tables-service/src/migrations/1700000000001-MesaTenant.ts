@@ -7,10 +7,23 @@ export class MesaTenant1700000000001 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      ALTER TABLE "mesas" ADD COLUMN IF NOT EXISTS "restaurante_id" uuid NOT NULL DEFAULT '${DEFAULT_ID}'
+      ALTER TABLE "mesas" ADD COLUMN IF NOT EXISTS "restaurante_id" uuid
+    `);
+    await queryRunner.query(`
+      UPDATE "mesas" SET "restaurante_id" = '${DEFAULT_ID}'::uuid
+      WHERE "restaurante_id" IS NULL
+    `);
+    await queryRunner.query(`
+      ALTER TABLE "mesas" ALTER COLUMN "restaurante_id" SET NOT NULL
+    `);
+    await queryRunner.query(`
+      ALTER TABLE "mesas" ALTER COLUMN "restaurante_id" SET DEFAULT '${DEFAULT_ID}'::uuid
     `);
     await queryRunner.query(`
       ALTER TABLE "mesas" DROP CONSTRAINT IF EXISTS "mesas_numero_key"
+    `);
+    await queryRunner.query(`
+      DROP INDEX IF EXISTS "UQ_mesas_numero"
     `);
     await queryRunner.query(`
       CREATE UNIQUE INDEX IF NOT EXISTS "IDX_mesas_restaurante_numero"

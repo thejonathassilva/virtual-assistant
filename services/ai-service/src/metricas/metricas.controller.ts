@@ -7,6 +7,25 @@ import { MetricasService } from './metricas.service';
 export class MetricasController {
   constructor(private readonly metricasService: MetricasService) {}
 
+  @Get('platform')
+  @ApiOperation({ summary: 'Métricas IA por restaurante (platform owner)' })
+  @ApiQuery({
+    name: 'periodo',
+    required: false,
+    enum: ['hoje', 'semana', 'mes'],
+  })
+  @ApiQuery({ name: 'restaurante_id', required: false })
+  getMetricasPlatform(
+    @Headers('x-user-role') role: string | undefined,
+    @Query('periodo') periodo?: string,
+    @Query('restaurante_id') restauranteId?: string,
+  ) {
+    if (role !== 'platform_owner') {
+      throw new ForbiddenException('Acesso restrito ao administrador da plataforma');
+    }
+    return this.metricasService.getMetricasPlatform(periodo ?? 'semana', restauranteId);
+  }
+
   @Get()
   @ApiOperation({ summary: 'Metricas agregadas da IA' })
   @ApiQuery({

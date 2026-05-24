@@ -122,7 +122,7 @@ export class ToolExecutorService {
 
   private async adicionarItemPedido(
     input: Record<string, unknown>,
-    context: { mesaId: string; sessaoId: string },
+    context: { mesaId: string; sessaoId: string; restauranteId?: string },
   ): Promise<unknown> {
     const produtoNome = String(input.produto_nome ?? '');
     const quantidade = Number(input.quantidade ?? 1);
@@ -167,7 +167,7 @@ export class ToolExecutorService {
 
   private async removerItemPedido(
     input: Record<string, unknown>,
-    context: { mesaId: string; sessaoId: string },
+    context: { mesaId: string; sessaoId: string; restauranteId?: string },
   ): Promise<unknown> {
     const produtoNome = String(input.produto_nome ?? '');
     const pedido = (await this.orders.safeGetPedidoAtual(
@@ -239,7 +239,7 @@ export class ToolExecutorService {
 
   private async chamarGarcom(
     input: Record<string, unknown>,
-    context: { mesaId: string; sessaoId: string },
+    context: { mesaId: string; sessaoId: string; restauranteId?: string },
   ): Promise<unknown> {
     const motivo = String(input.motivo ?? 'Cliente solicitou atendimento');
     await this.realtime.emitChamarGarcom({

@@ -1,7 +1,7 @@
 <div class="chat-layout">
   <div class="chat-main">
     <header class="chat-header">
-      <a mat-icon-button [routerLink]="['/mesa', mesaId()]"><mat-icon>arrow_back</mat-icon></a>
+      <a mat-icon-button [routerLink]="tenant.mesaPath(mesaId())"><mat-icon>arrow_back</mat-icon></a>
       <app-restaurant-brand size="sm" subtitle="Assistente virtual de pedidos" />
     </header>
 

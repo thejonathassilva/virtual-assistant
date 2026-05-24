@@ -6,6 +6,7 @@ import { EmpresaModule } from './empresa/empresa.module';
 import { HealthController } from './health.controller';
 import { Empresa } from './empresa/entities/empresa.entity';
 import { Restaurante } from './restaurante/entities/restaurante.entity';
+import { OnboardingModule } from './onboarding/onboarding.module';
 import { RestauranteModule } from './restaurante/restaurante.module';
 import { ProxyModule } from './proxy/proxy.module';
 
@@ -15,6 +16,7 @@ import { ProxyModule } from './proxy/proxy.module';
     TypeOrmModule.forRoot(buildTypeOrmOptions([Empresa, Restaurante])),
     EmpresaModule,
     RestauranteModule,
+    OnboardingModule,
     ProxyModule,
   ],
   controllers: [HealthController],

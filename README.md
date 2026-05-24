@@ -57,7 +57,7 @@ Aguarde alguns minutos na primeira vez (build das imagens).
 
 Acesse http://localhost:4201/login e depois:
 
-- **Plataforma:** `/platform` — cadastrar restaurantes, cotas de IA, custo estimado e criar o admin inicial  
+- **Plataforma:** `/platform` — cadastrar restaurantes, cotas de IA, **gráficos de métricas (7 dias)** por restaurante, custo estimado e criar o admin inicial. A cota de tokens **renova automaticamente** no dia `quota_renovacao_em` (uso zerado; próximo ciclo = dia 1 do mês seguinte).  
 - **Admin:** `/admin` — produtos, usuários, empresa, mesas/QR, config IA  
 - **Cozinha:** `/cozinha`  
 - **Garçom:** `/garcom`  
@@ -65,16 +65,15 @@ Acesse http://localhost:4201/login e depois:
 
 ### Cliente na mesa (QR / link)
 
-1. Com a API no ar, obtenha o ID de uma mesa (logado como admin):
+Os QR codes apontam para URLs com slug do restaurante:
 
-   `GET http://localhost:3008/api/mesas`  
-   Header: `Authorization: Bearer <token>`  
+- Mesa: `http://localhost:4201/r/duas-maos-uma-mesa/mesa/{id-da-mesa}`  
+- Cardápio: `.../cardapio`  
+- Assistente: `.../chat`  
 
-2. Abra no navegador:
+Links antigos `/mesa/{id}` redirecionam automaticamente para a URL com slug.
 
-   - Mesa: http://localhost:4201/mesa/{id-da-mesa}  
-   - Cardápio: http://localhost:4201/mesa/{id}/cardapio  
-   - Assistente: http://localhost:4201/mesa/{id}/chat  
+No admin, novos restaurantes passam pelo **onboarding** (`/admin/onboarding`): empresa → cardápio → mesas/QR.
 
 ---
 
@@ -200,6 +199,7 @@ Nuvem futura (AWS / GCP / Azure): [docs/cloud-providers.md](docs/cloud-providers
 | Front sem API | Confirme `docker compose ps` — `api-gateway` e `frontend` healthy |
 | WebSocket cozinha/garçom não conecta | Acesse pelo front `:4201` (não abra só `:3006` no dev Docker) |
 | Nome antigo da empresa no admin | Reinicie `admin-service` ou edite em `/admin/empresa` |
+| `restaurante_id` contains null values (tables-service) | `docker compose up -d --build tables-service` (migrations corrigem dados legados). Se persistir: `docker compose down -v` (apaga o Postgres local) |
 | Reset completo | `docker compose down -v` e `.\scripts\setup.ps1` de novo |
 
 ---

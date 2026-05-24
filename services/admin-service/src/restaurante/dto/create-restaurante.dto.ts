@@ -29,4 +29,9 @@ export class CreateRestauranteDto {
   @IsOptional()
   @IsBoolean()
   quota_ilimitada?: boolean;
+
+  @ApiPropertyOptional({ default: true })
+  @IsOptional()
+  @IsBoolean()
+  clonar_cardapio_modelo?: boolean;
 }

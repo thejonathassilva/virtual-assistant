@@ -1,10 +1,15 @@
-import { UnauthorizedException } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { isPublicRoute } from '../auth/public-routes';
 import { buildProxyEntries } from './proxy.config';
+
+interface JwtClaims {
+  sub: string;
+  role?: string;
+  restaurante_id?: string | null;
+}
 
 export function setupApiProxy(app: NestExpressApplication): void {
   const expressApp = app.getHttpAdapter().getInstance();
@@ -35,7 +40,15 @@ export function setupApiProxy(app: NestExpressApplication): void {
       const token = authHeader.slice(7);
       const secret = process.env.JWT_SECRET || 'dev-jwt-secret';
       try {
-        jwt.verify(token, secret);
+        const payload = jwt.verify(token, secret) as JwtClaims;
+        if (payload.role) {
+          req.headers['x-user-role'] = payload.role;
+        }
+        if (payload.restaurante_id) {
+          req.headers['x-restaurante-id'] = payload.restaurante_id;
+        } else if (payload.role === 'platform_owner') {
+          delete req.headers['x-restaurante-id'];
+        }
       } catch {
         res.status(401).json({
           statusCode: 401,

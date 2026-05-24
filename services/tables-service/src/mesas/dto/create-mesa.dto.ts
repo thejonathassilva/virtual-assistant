@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsInt, IsOptional, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { MesaStatus } from '../entities/mesa.entity';
 
 export class CreateMesaDto {
@@ -12,4 +12,9 @@ export class CreateMesaDto {
   @IsOptional()
   @IsEnum(MesaStatus)
   status?: MesaStatus;
+
+  @ApiPropertyOptional({ example: 'duas-maos-uma-mesa' })
+  @IsOptional()
+  @IsString()
+  restaurante_slug?: string;
 }

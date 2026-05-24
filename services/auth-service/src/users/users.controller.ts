@@ -31,6 +31,17 @@ export class UsersController {
     return this.usersService.findAll(restauranteId || undefined);
   }
 
+  @Get('tenant/:restauranteId/admin')
+  findTenantAdmin(
+    @Headers('x-user-role') role: string | undefined,
+    @Param('restauranteId') restauranteId: string,
+  ) {
+    if (role !== UserRole.PLATFORM_OWNER) {
+      throw new ForbiddenException('Acesso restrito ao administrador da plataforma');
+    }
+    return this.usersService.findAdminByRestaurante(restauranteId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findById(id);
@@ -38,9 +49,9 @@ export class UsersController {
 
   @Post()
   create(
+    @Body() dto: CreateUsuarioDto,
     @Headers('x-user-role') role?: string,
     @Headers('x-restaurante-id') restauranteId?: string,
-    @Body() dto: CreateUsuarioDto,
   ) {
     if (role === UserRole.PLATFORM_OWNER) {
       if (dto.role === UserRole.PLATFORM_OWNER) {
@@ -59,8 +70,13 @@ export class UsersController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateUsuarioDto) {
-    return this.usersService.update(id, dto);
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateUsuarioDto,
+    @Headers('x-user-role') role?: string,
+    @Headers('x-restaurante-id') restauranteId?: string,
+  ) {
+    return this.usersService.updateAuthorized(id, dto, { role, restauranteId });
   }
 
   @Delete(':id')
